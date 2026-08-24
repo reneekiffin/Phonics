@@ -1,0 +1,796 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Phonics with Bella</title>
+<meta name="description" content="Match letters, learn sight words, snap word blocks together, and read real facts.">
+<meta name="theme-color" content="#FF9EC4">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Phonics with Bella">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300..800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sky:#FFF0F5; --ink:#5A3A4A; --ink-soft:#A57B8C;
+  --sun:#FFD1E3; --coral:#FF8FB8; --leaf:#B5E8C9; --grape:#C9A7EB; --sea:#A7DCE8; --tang:#FFC4A3;
+  --pink:#FF9EC4; --pinkdeep:#F26D9B; --cream:#FFF6EE;
+  --card:#FFFFFF; --line:#FBE0EC;
+  --display:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --body:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:26px; --shadow:0 5px 0 rgba(242,109,155,.15);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:var(--body);background:var(--sky);color:var(--ink);font-weight:600;
+  padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);overflow-x:hidden}
+button{font-family:inherit;font-weight:800;border:0;cursor:pointer;color:inherit}
+button:focus-visible,[tabindex]:focus-visible{outline:4px solid var(--sea);outline-offset:3px}
+
+/* ---- header ---- */
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;gap:10px}
+.logo{font-family:var(--display);font-weight:800;letter-spacing:-.02em;font-size:22px;display:flex;align-items:center;gap:8px;background:none;padding:0}
+.logo .buntiny svg{width:30px;height:39px;display:block} .logo .buntiny{display:flex}
+.logo .blk{display:inline-grid;grid-auto-flow:column;gap:3px}
+.logo .buntiny svg{width:30px;height:39px;display:block} .logo .buntiny{display:flex}
+.logo .wordmark{display:flex;flex-direction:column;line-height:1;text-align:left}
+.logo .wordmark small{font-family:var(--body);font-weight:700;font-size:12px;letter-spacing:.02em;color:var(--ink-soft);margin-top:2px}
+.logo .blk i{width:14px;height:14px;border-radius:4px;display:block}
+.score{display:flex;align-items:center;gap:8px;background:var(--card);border-radius:999px;padding:6px 14px 6px 8px;box-shadow:var(--shadow);font-family:var(--display);font-size:18px}
+.score .star{width:26px;height:26px}
+.score.bump{animation:bump .4s}
+@keyframes bump{40%{transform:scale(1.18)}}
+
+main{max-width:560px;margin:0 auto;padding:6px 16px 40px}
+.screen{display:none;animation:fade .25s}
+.screen.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}}
+
+h1,h2{font-family:var(--display);font-weight:800;letter-spacing:-.02em;margin:0}
+h1{font-size:34px;line-height:1.1}
+h2{font-size:26px}
+.sub{color:var(--ink-soft);margin:6px 0 18px;font-size:16px}
+
+/* ---- hero / mascot ---- */
+.hero{display:flex;flex-direction:column;align-items:center;text-align:center;margin:4px 0 14px}
+.bunbig svg{width:120px;height:154px;filter:drop-shadow(0 6px 0 rgba(242,109,155,.15));animation:bob 3s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-6px)}}
+.bubble{background:var(--card);border-radius:20px;padding:12px 18px;box-shadow:var(--shadow);font-family:var(--display);font-weight:600;font-size:17px;position:relative;margin-top:10px;line-height:1.35}
+.bubble b{font-weight:800;color:var(--pinkdeep);font-size:19px}
+.bubble::after{content:"";position:absolute;top:-9px;left:50%;transform:translateX(-50%);border:9px solid transparent;border-top:0;border-bottom-color:var(--card)}
+
+/* ---- home tiles ---- */
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tile{background:var(--card);border-radius:var(--r);padding:18px 16px;text-align:left;box-shadow:var(--shadow);
+  display:flex;flex-direction:column;gap:10px;min-height:150px;transition:transform .12s;position:relative;overflow:hidden}
+.tile:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(242,109,155,.15)}
+.tile .em{font-size:38px;line-height:1}
+.tile b{font-family:var(--display);font-size:19px;font-weight:800;letter-spacing:-.01em}
+.tile small{color:var(--ink-soft);font-weight:600}
+.tile::after{content:"";position:absolute;right:-20px;bottom:-20px;width:80px;height:80px;border-radius:24px;opacity:.18;transform:rotate(12deg)}
+.tile:last-of-type{grid-column:1/-1;min-height:110px;flex-direction:row;align-items:center;gap:16px}
+.tile:last-of-type span,.tile:last-of-type b{margin:0}
+.tile.t1::after{background:var(--sun)} .tile.t2::after{background:var(--coral)}
+.tile.t3::after{background:var(--grape)} .tile.t4::after{background:var(--leaf)} .tile.t5::after{background:var(--sea)}
+
+/* ---- shared ---- */
+.bar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.back{background:var(--card);box-shadow:var(--shadow);border-radius:999px;width:44px;height:44px;font-size:20px}
+.pill{background:var(--card);border-radius:999px;padding:8px 14px;font-size:14px;color:var(--ink-soft)}
+.big{font-family:var(--display);font-weight:700;font-size:20px;border-radius:999px;padding:16px 26px;background:var(--pinkdeep);color:#fff;box-shadow:0 6px 0 #D14E80;width:100%;transition:transform .1s}
+.big:active{transform:translateY(4px);box-shadow:0 2px 0 #D14E80}
+.big.ghost{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+.hint{color:var(--ink-soft);font-size:15px;text-align:center;margin:10px 0 0;min-height:22px}
+.row{display:flex;align-items:center;gap:12px;justify-content:center;flex-wrap:wrap}
+
+/* ---- letters ---- */
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.cardl{aspect-ratio:1;background:var(--card);border-radius:18px;font-family:var(--display);font-size:38px;font-weight:700;
+  box-shadow:var(--shadow);transition:transform .15s,background .2s;display:grid;place-items:center;position:relative}
+.cardl.pick{background:var(--pink);transform:scale(1.06)}
+.cardl.done{background:var(--leaf);color:#fff;pointer-events:none;box-shadow:none;transform:scale(.94)}
+.cardl.no{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+/* ---- sight words ---- */
+.choices{display:grid;gap:12px;margin-top:16px}
+.choices.four{grid-template-columns:1fr 1fr}
+.choice{background:var(--card);border-radius:18px;padding:18px;font-family:var(--display);font-size:32px;font-weight:700;box-shadow:var(--shadow);transition:transform .1s,background .2s}
+.choice:active{transform:translateY(3px)}
+.choice.yes{background:var(--leaf);color:#fff}
+.choice.no{background:var(--coral);color:#fff;animation:shake .35s}
+
+/* ---- word blocks (signature) ---- */
+.stage{background:var(--card);border-radius:var(--r);padding:22px 16px;box-shadow:var(--shadow);min-height:150px;
+  display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap}
+.block{font-family:var(--display);font-weight:700;font-size:34px;padding:12px 18px;border-radius:14px;color:var(--ink);
+  background:var(--pink);box-shadow:0 5px 0 rgba(0,0,0,.14);position:relative;transition:transform .15s;margin:6px}
+.block.c2{background:var(--coral);color:#fff} .block.c3{background:var(--grape);color:#fff} .block.c4{background:var(--sea);color:#fff}
+.block.slot{background:transparent;box-shadow:none;border:3px dashed var(--line);color:transparent;margin:6px 3px}
+.block.snap{margin:6px 0;animation:snap .3s}
+.block.snap+.block.snap{margin-left:-6px}
+.block.snap::after{content:"";position:absolute;right:-2px;top:22%;height:56%;width:3px;background:rgba(0,0,0,.12);border-radius:2px}
+.block.snap:last-child::after{display:none}
+@keyframes snap{0%{transform:scale(1.15) translateY(-10px)}60%{transform:scale(.96)}}
+.tray{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px;min-height:80px}
+.tray .block{cursor:pointer}
+.tray .block:active{transform:translateY(3px)}
+.tray .block.used{visibility:hidden}
+.whole{font-family:var(--display);font-size:42px;font-weight:700;text-align:center;margin-top:10px;color:var(--leaf);min-height:52px}
+
+/* ---- sound teams ---- */
+.teamcard{background:var(--card);border-radius:var(--r);padding:22px;box-shadow:var(--shadow);text-align:center}
+.teamcard .em{font-size:64px;line-height:1}
+.gapword{font-family:var(--display);font-weight:800;font-size:46px;letter-spacing:.02em;margin-top:8px;display:flex;justify-content:center;align-items:center;gap:2px}
+.gapword .gap{display:inline-block;min-width:1.6em;border-bottom:5px solid var(--pink);height:1.1em;margin:0 4px;border-radius:4px;transition:all .2s;color:var(--pinkdeep)}
+.gapword .gap.fill{border-bottom-color:transparent;background:var(--pink);border-radius:12px;padding:0 10px}
+.teams{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+.teamb{background:var(--card);border-radius:18px;padding:18px 8px;font-family:var(--display);font-size:32px;font-weight:800;box-shadow:var(--shadow);transition:transform .1s,background .2s;color:var(--grape)}
+.teamb:active{transform:translateY(3px)}
+.teamb.yes{background:var(--leaf);color:#fff} .teamb.no{background:var(--coral);color:#fff;animation:shake .35s}
+
+.seg{display:flex;background:var(--card);border-radius:999px;padding:4px;box-shadow:var(--shadow);margin-bottom:14px}
+.seg button{flex:1;border-radius:999px;padding:10px;font-weight:800;font-size:15px;background:transparent;color:var(--ink-soft)}
+.seg button.on{background:var(--pinkdeep);color:#fff}
+.deck{position:relative}
+.dots{display:flex;gap:6px;justify-content:center;margin:0 0 12px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);display:block;transition:all .2s}
+.dots i.on{background:var(--pinkdeep);width:22px;border-radius:4px}
+.fam{background:var(--card);border-radius:28px;padding:26px 20px 22px;box-shadow:var(--shadow);text-align:center;animation:fade .25s;touch-action:pan-y}
+.fam .em{font-size:56px;line-height:1}
+.fam .teamsline{font-family:var(--display);font-weight:800;font-size:44px;letter-spacing:-.02em;margin:6px 0 2px;display:flex;justify-content:center;gap:10px;align-items:center;flex-wrap:wrap}
+.fam .teamsline span{padding:2px 14px;border-radius:14px;color:#fff}
+.fam .teamsline em{font-style:normal;color:var(--line);font-size:30px}
+.fam .name{color:var(--ink-soft);font-weight:700;font-size:16px;margin-bottom:16px}
+.wgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;text-align:left}
+.wgrid .ex{font-family:var(--display);font-weight:600;font-size:24px;padding:6px 10px;background:var(--cream);border-radius:12px}
+.wgrid .ex mark{background:transparent;font-weight:800;padding:0}
+.wgrid .lbl{grid-column:1/-1;font-size:13px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;margin-top:10px}
+.wgrid .lbl:first-child{margin-top:0}
+.nav{display:flex;gap:10px;margin-top:14px}
+.nav .big{flex:1}
+.gloss{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.gbtn{background:var(--card);border-radius:16px;padding:14px 6px;box-shadow:var(--shadow);text-align:center;transition:transform .1s}
+.gbtn:active{transform:translateY(3px)}
+.gbtn b{display:block;font-family:var(--display);font-weight:800;font-size:24px}
+.gbtn.on{background:var(--pinkdeep)} .gbtn.on b,.gbtn.on small{color:#fff}
+.intro{font-family:var(--display);font-weight:600;font-size:22px;line-height:1.5;text-align:left}
+.intro b{font-weight:800;color:var(--grape)}
+.pop{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:14px 0 4px}
+.pop span{font-family:var(--display);font-weight:800;font-size:22px;background:var(--pink);border-radius:12px;padding:6px 14px}
+.gbtn small{color:var(--ink-soft);font-weight:700;font-size:13px}
+.jread{font-family:var(--display);font-weight:600;font-size:34px;line-height:1.5;text-align:center;padding:10px 0}
+.jread.jpara{font-size:23px;line-height:1.6;text-align:left;font-weight:500}
+.jread .big-w{font-weight:800;color:var(--grape);cursor:pointer;border-bottom:4px dotted var(--grape);border-radius:4px}
+.sent{font-family:var(--display);font-weight:600;font-size:28px;line-height:1.5;margin-top:10px}
+.sent .gap{display:inline-block;min-width:2.6em;border-bottom:4px solid var(--pink);border-radius:4px;padding:0 6px;color:var(--pinkdeep);font-weight:800}
+.sent .gap.fill{border-bottom-color:transparent;background:var(--pink)}
+
+/* ---- read ---- */
+.para{background:var(--card);border-radius:var(--r);padding:22px;box-shadow:var(--shadow);font-size:24px;line-height:1.7;font-family:var(--display);font-weight:500}
+.w.split{color:var(--grape)}
+.w{display:inline-block;border-radius:8px;padding:0 3px;cursor:pointer;transition:background .15s}
+.w:hover,.w:active{background:var(--pink)}
+.w.say{background:var(--pink)}
+.para .topic{display:block;font-family:var(--body);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:8px;font-weight:800}
+.quiz{margin-top:16px}
+.quiz p{font-size:18px;margin:0 0 10px}
+
+/* ---- reward ---- */
+.reward{position:fixed;inset:0;background:rgba(90,58,74,.5);display:none;place-items:center;z-index:20;padding:20px}
+.reward.on{display:grid}
+.rbox{background:var(--card);border-radius:30px;padding:32px 26px;text-align:center;max-width:380px;width:100%;animation:pop .45s cubic-bezier(.2,1.4,.5,1)}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+.rbox .bun svg{width:88px;height:113px}
+.rbox h2{font-size:30px;margin:6px 0}
+.rbox p{color:var(--ink-soft);margin:0 0 18px;font-size:18px}
+canvas#confetti{position:fixed;inset:0;pointer-events:none;z-index:21}
+
+/* ---- install card ---- */
+.install{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:var(--shadow);margin-top:18px;font-size:15px}
+.install b{font-family:var(--display);font-weight:600;font-size:17px}
+.install ol{margin:8px 0 0;padding-left:20px}
+.install li{margin:4px 0}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:999px;font-size:15px;display:none;z-index:30}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:380px){.block{font-size:28px;padding:10px 14px}.choice{font-size:28px}}
+</style>
+</head>
+<body>
+
+<header>
+  <button class="logo" onclick="go('home')" aria-label="Home">
+    <span class="buntiny"><svg class="bun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 554.58 712.73"> <defs> <style> .cls-1 { fill: #8fa7cd; } .cls-2 { fill: #020304; } .cls-3 { fill: #fff; } .cls-4 { fill: #fefefe; } .cls-5 { fill: #f9e6e9; } .cls-6 { fill: #f4bece; } </style> </defs> <g id="Layer_1-2" data-name="Layer 1"> <g> <path class="cls-4" d="M214.11,223.43c-11.99-49.7-28.06-101.01-56.85-143.65C122.43,28.19,29.14-55.87,5.53,53.5c-18.53,85.84,10.98,175.76,70.52,238.5,1.82,1.92,8.02,5.17,8.01,7.99,0,1.52-14.66,19.42-17.03,23-25.86,38.9-38.57,83.11-44.85,129.15-1.2,8.77-.66,18.98-2.57,27.43s-8.17,17.33-11.31,25.69c-27.08,72.35,15.64,133.29,77.73,166.77,105.83,57.08,309.19,56.27,407.94-16.11,51.91-38.05,75.1-95.27,49.57-157.4-2.17-5.28-6.8-11.65-8.22-16.78-2.87-10.34-2.71-26.3-4.4-37.6-3.76-25.04-9.99-49.6-18.85-73.26-.09-2.29,5.88-9.33,7.51-12.36,2.95-5.49,6.04-13.68,7.21-19.79.99-5.2.52-13.54,2.2-17.8,1.25-3.18,9.66-10.63,12.49-14.51,11.97-16.41,19.84-39.59,5.1-56.92-6.92-8.14-16.88-11.69-26.49-15.48,32.43-56.11,43.66-129.73,25.47-192.5-23.37-80.66-94.47-25.59-129.01,12.98-27.07,30.24-44.77,67.63-58.46,105.55-29.92-14.24-51.7,4.28-58.56,33.43-1.13,4.82-1.99,21.05-4.89,23.1-3.47,2.38-7.39-.03-11.03-.11-13.18-.3-26.84.55-39.91,2.17-9.91,1.23-19.64,3.74-29.56,4.8Z"/> <path class="cls-1" d="M214.11,223.43c9.92-1.06,19.65-3.57,29.56-4.8,13.07-1.62,26.74-2.47,39.91-2.17,3.64.08,7.57,2.49,11.03.11,2.9-2.06,3.76-18.28,4.89-23.1,6.85-29.14,28.64-47.66,58.56-33.43,13.69-37.92,31.39-75.32,58.46-105.55,34.54-38.57,105.65-93.65,129.01-12.98,18.18,62.78,6.95,136.39-25.47,192.5,9.61,3.8,19.57,7.35,26.49,15.48,14.74,17.34,6.87,40.51-5.1,56.92-2.83,3.88-11.24,11.33-12.49,14.51-1.68,4.26-1.21,12.6-2.2,17.8-1.17,6.11-4.26,14.3-7.21,19.79-1.63,3.04-7.6,10.07-7.51,12.36,8.87,23.66,15.09,48.22,18.85,73.26,1.7,11.3,1.53,27.26,4.4,37.6,1.42,5.13,6.06,11.5,8.22,16.78,25.53,62.13,2.34,119.35-49.57,157.4-98.74,72.38-302.1,73.18-407.94,16.11-62.08-33.48-104.81-94.42-77.73-166.77,3.13-8.37,9.46-17.5,11.31-25.69s1.37-18.67,2.57-27.43c6.28-46.04,19-90.25,44.85-129.15,2.37-3.57,17.03-21.47,17.03-23,.01-2.82-6.19-6.07-8.01-7.99C16.51,229.26-13,139.34,5.53,53.5c23.61-109.37,116.9-25.31,151.73,26.29,28.79,42.64,44.86,93.95,56.85,143.65ZM183.3,246.26c-7.49-6.55,12.38-15.24,16.48-17.19-16.11-69.19-41.78-142.09-98.26-188.53C85.25,27.15,50.09,1.74,32.63,24.59c-15.83,20.72-18.95,76.86-16.58,102.4,5.64,60.61,35.25,122.07,80.64,162.43,3.08-2.5,17.46-12.63,17.43-3.44-.02,6.46-15.51,20.46-20.05,26.04-36.6,45.07-51.1,95.01-58.01,151.99-.76,6.23-.11,15.23-1.24,20.76-.87,4.27-6.8,12.25-8.95,17.05-21.31,47.72-8.68,95.85,29.16,130.19,88.54,80.35,288.38,81.2,392.37,33.34,66.31-30.51,112.62-87.58,81.11-162.83-2.49-5.95-8.3-13.91-9.23-19.77-1.35-8.61-1.15-18.66-2.38-27.62-3.64-26.31-8.44-52.69-18.82-77.23-41.82,8.67-68.65-37.64-82.24-70.21-12.56-1.33-25.77-6.71-34.77-15.69-29.82,8.98-70.55,18.84-97.36-2.68-14.69-11.79-15.85-28.96-8.85-45.51.74-1.76,6.79-11.77,6.18-12.31-11.8,1.27-23.53.77-35.35,2.14-19.58,2.27-36.11,9.2-54.29,12.73-2.16.42-6.32,1.43-8.1-.12ZM469.04,236.51c4.53-1,9.01-2.26,13.64-2.86,4.07-.53,20.54-.94,21.87-2.13,1.75-1.56,7.85-14.52,9.35-17.65,24.38-50.98,33.97-119.64,15.16-173.87-11.52-33.21-32.12-28.67-57.94-12.91-39.31,24.01-69.29,67.24-87.26,108.74-4.57,10.54-8.07,21.61-12.53,32.2,10.25,9.85,18.72,20.51,25.89,32.81,2.39,4.11,4.13,9.56,6.59,13.38.63.98-.1,1.79,2.24,1.28,3.24-30.06,14.18-61.5,30.59-86.91,5.98-9.26,27.33-36.52,37.99-38.05,6.08-.87,4.59,2.33,5.43,2.97-10.01,9.25-18.66,16.49-26.41,28.09-20.88,31.25-30.54,70.7-33.49,107.81,9.45,2.09,18.28,7.62,25.54,13.95,7.57-3.13,15.38-5.08,23.36-6.85ZM347.3,233.76c4.52-4.82,13.13-.23,18.09,1.89,6.3,2.69,12.17,6.46,18.17,9.72,1.43-4.12,11.77-12.01,11.33-15.11-.63-4.47-10.49-22.01-13.43-26.67-14.7-23.28-50.09-54.84-65.2-13.35-3.53,9.69-2.99,23.72-5.97,31.03-1.84,4.51-12.38,13.51-16.07,18.93-6.06,8.91-12.49,21.56-6.03,31.65,12.22,19.09,44.84,16.23,64.07,12.39,4.29-.86,17.85-3.96,20.76-6.24s2.67-14.85,3.85-19.3l-28.78-14.73c-2.53-2.06-2.84-8-.79-10.2ZM407.77,242.74c-9.31,1.9-19.24,24.71-18.51,33.04.79,9.04,19.47,17.42,27.16,16.68,10.42-1,20.66-24.35,19.54-33.36-1.18-9.53-19.69-18.1-28.19-16.37ZM441.24,289.72c-.39.23-3.78,6.33-4.78,7.7-1.82,2.48-5.53,4.2-5.41,7.47.15,4.13,10.72,22.12,13.57,26.53,9.59,14.84,33.79,42.51,53.35,29.52,18.46-12.27,10.69-38.49,19.07-49.93,7.91-10.79,17.83-16.91,21.5-31.5,9.55-37.94-47.77-33.01-69.88-27.88-2.83.66-16.12,4.13-17.15,5.85l-2.45,17.98c7.73,2.27,23.4,6.05,29.33,11.18,4.52,3.91,3.52,11.7-2.33,13.45-6.72,2.02-28.33-14.19-34.83-10.38Z"/> <path class="cls-4" d="M183.3,246.26c1.78,1.55,5.94.54,8.1.12,18.17-3.53,34.71-10.46,54.29-12.73,11.82-1.37,23.55-.87,35.35-2.14.61.54-5.43,10.56-6.18,12.31-7,16.55-5.84,33.72,8.85,45.51,26.81,21.51,67.54,11.66,97.36,2.68,9,8.98,22.21,14.36,34.77,15.69,13.59,32.57,40.42,78.88,82.24,70.21,10.38,24.54,15.18,50.92,18.82,77.23,1.24,8.96,1.03,19.01,2.38,27.62.92,5.87,6.74,13.83,9.23,19.77,31.51,75.24-14.8,132.31-81.11,162.83-104,47.85-303.83,47.01-392.37-33.34-37.84-34.34-50.47-82.46-29.16-130.19,2.15-4.8,8.08-12.79,8.95-17.05,1.13-5.53.48-14.53,1.24-20.76,6.92-56.97,21.41-106.92,58.01-151.99,4.54-5.59,20.03-19.58,20.05-26.04.03-9.19-14.35.94-17.43,3.44C51.3,249.07,21.69,187.61,16.05,127c-2.38-25.54.75-81.68,16.58-102.4,17.46-22.86,52.62,2.56,68.89,15.94,56.48,46.45,82.15,119.34,98.26,188.53-4.1,1.96-23.96,10.65-16.48,17.19ZM74.04,93.51c-.62.47-4.1.87-6.49,3.01-4.77,4.25-7.78,13.63-9.21,19.79-11.88,50.96,9.32,123.96,61.02,145.38,4.1,1.7,11.65,5.22,15.68,2.82,2.36,5.07,13.42,5.43,15.7-1.78,3.9-12.34-.6-40.96-2.99-54.43-5.73-32.28-19.32-67.48-39.74-93.26-7.88-9.95-18.31-20.73-30.31-25.31-3.28.27-3.39,3.58-3.66,3.78ZM80.88,482.66c-.08,8.11-3.46,16.05-3.88,24.31-2.93,56.95,55.66,76.15,99.71,49.71,11.07-6.65,16.19-11.17,17.32-24.68,1.65-19.81-.87-41.92-10.47-59.5-15.59-28.58-49.5-40.97-77.83-21.8-4.33,2.93-14.29,13.7-17.4,14.6-4.66,1.34-14.67-2.24-17.04.47-3.69,4.23,3.9,16.46,9.6,16.9ZM415.83,441.81c-43.09,3.72-58.6,49.73-55.78,87.19,1.21,16.07,5.25,20.45,18.68,28.32,17.42,10.21,37.78,13.9,57.52,8.91,37.4-9.46,48.59-48.66,36.01-82.25.15-.97,12.27-5.93,11.74-14.9-.44-7.36-8.02-3.59-12.44-3.5-9.15.19-13.44-8.34-20.61-13.48-10.2-7.32-22.45-11.38-35.12-10.29ZM272.04,585.51c2.5,14.7-5.25,26.26-20.54,27.01-12.12.6-14.9-7.97-22.93-13.98-12.32,4.01,2.86,18.57,9.47,21.47,12.1,5.33,31.66,1.96,38.02-10.49h1.96c7.06,13.88,30.38,16.47,42.53,8,4.54-3.16,12.23-11.6,8.57-17.34-3.91-6.12-10.31,5.97-13.58,8.32-16.22,11.67-37.82-3.59-33.49-22.99,12.95-1.81,40.73-26.99,21.53-38.03-10.28-5.91-17.57-.62-28.08-.92-8.98-.25-13.45-4.13-22.97-.07-22.76,9.7,5.67,37.08,19.52,39.02Z"/> <path class="cls-4" d="M469.04,236.51c4.15-6.98,9.36-13.08,13.17-20.33,14.53-27.68,24.94-86.22,8.65-113.99-4.52-7.71-6.92-5.71-10.82-8.68-.84-.64.65-3.84-5.43-2.97-10.65,1.53-32.01,28.79-37.99,38.05-16.41,25.41-27.35,56.85-30.59,86.91-2.34.51-1.61-.3-2.24-1.28-2.45-3.82-4.19-9.27-6.59-13.38-7.17-12.31-15.64-22.97-25.89-32.81,4.46-10.59,7.97-21.65,12.53-32.2,17.98-41.5,47.95-84.73,87.26-108.74,25.82-15.77,46.42-20.31,57.94,12.91,18.81,54.24,9.23,122.9-15.16,173.87-1.5,3.13-7.6,16.09-9.35,17.65-1.33,1.19-17.8,1.6-21.87,2.13-4.63.6-9.12,1.85-13.64,2.86Z"/> <path class="cls-6" d="M347.3,233.76c-2.05,2.19-1.74,8.14.79,10.2l28.78,14.73c-1.18,4.46-.89,16.98-3.85,19.3s-16.47,5.39-20.76,6.24c-19.23,3.84-51.85,6.7-64.07-12.39-6.46-10.1-.03-22.74,6.03-31.65,3.69-5.42,14.22-14.42,16.07-18.93,2.99-7.31,2.45-21.34,5.97-31.03,15.11-41.49,50.5-9.92,65.2,13.35,2.95,4.67,12.8,22.2,13.43,26.67.44,3.1-9.9,10.99-11.33,15.11-6-3.26-11.87-7.03-18.17-9.72-4.96-2.12-13.58-6.71-18.09-1.89Z"/> <path class="cls-6" d="M441.24,289.72c6.5-3.81,28.11,12.4,34.83,10.38,5.85-1.76,6.85-9.54,2.33-13.45-5.92-5.13-21.6-8.9-29.33-11.18l2.45-17.98c1.02-1.72,14.32-5.2,17.15-5.85,22.11-5.13,79.43-10.06,69.88,27.88-3.67,14.59-13.6,20.71-21.5,31.5-8.38,11.44-.61,37.65-19.07,49.93-19.55,13-43.76-14.68-53.35-29.52-2.85-4.41-13.42-22.4-13.57-26.53-.12-3.27,3.59-4.98,5.41-7.47,1.01-1.37,4.39-7.47,4.78-7.7Z"/> <path class="cls-5" d="M469.04,236.51c-7.98,1.77-15.79,3.72-23.36,6.85-7.25-6.32-16.08-11.86-25.54-13.95,2.95-37.11,12.61-76.56,33.49-107.81,7.75-11.61,16.4-18.84,26.41-28.09,3.9,2.97,6.3.97,10.82,8.68,16.29,27.77,5.88,86.3-8.65,113.99-3.81,7.26-9.02,13.35-13.17,20.33Z"/> <path class="cls-6" d="M407.77,242.74c8.49-1.73,27,6.83,28.19,16.37,1.12,9.01-9.12,32.35-19.54,33.36-7.69.74-26.36-7.65-27.16-16.68-.73-8.33,9.2-31.14,18.51-33.04Z"/> <path class="cls-5" d="M74.04,93.51c4.25,5.63,10.72,8.92,15.51,13.99,29.17,30.86,44.21,90.92,45.53,132.47.18,5.52-1.7,20.98-.04,24.54-4.03,2.4-11.58-1.12-15.68-2.82-51.71-21.42-72.91-94.43-61.02-145.38,1.44-6.15,4.44-15.53,9.21-19.79,2.4-2.14,5.87-2.54,6.49-3.01Z"/> <path class="cls-1" d="M415.83,441.81c12.67-1.09,24.92,2.97,35.12,10.29,7.17,5.14,11.46,13.68,20.61,13.48,4.42-.09,12-3.87,12.44,3.5.53,8.97-11.59,13.92-11.74,14.9,12.57,33.59,1.39,72.79-36.01,82.25-19.74,4.99-40.09,1.3-57.52-8.91-13.43-7.87-17.47-12.25-18.68-28.32-2.82-37.46,12.68-83.47,55.78-87.19ZM421.04,556.51c1.94,1.07,7.35.32,9.4-.1,56.75-11.71,41.08-103.35-14.75-102.83-.96,0-6.62.39-5.65,2.93-31.19,1.6-41.83,45.18-39.99,70.49.92,12.65,3.04,15.03,13.68,21.32s24.51,11.07,37.31,8.19Z"/> <path class="cls-1" d="M80.88,482.66c-5.7-.43-13.28-12.67-9.6-16.9,2.37-2.71,12.38.88,17.04-.47,3.1-.9,13.07-11.67,17.4-14.6,28.33-19.17,62.24-6.78,77.83,21.8,9.6,17.59,12.11,39.69,10.47,59.5-1.12,13.51-6.24,18.04-17.32,24.68-44.05,26.44-102.64,7.24-99.71-49.71.42-8.26,3.8-16.2,3.88-24.31ZM134.04,556.51c7.47,1.64,12.43,1.2,19.78-.72,6.3-1.64,26.71-11.39,28.76-17.24,3.94-11.26,1.04-35.88-2.6-47.48-4.33-13.8-15.72-31.43-30.94-34.56l-.5-.98-.5.98c-.63-.09-1.35.05-2,0,.56-3.03-1.53-1.93-3.45-2-16.13-.63-29.27,2.26-39.96,15.08-20.98,25.16-20.6,72.84,14.73,85.1,4.45,1.55,12.2,3.43,16.69,1.81Z"/> <path class="cls-1" d="M74.04,93.51c.27-.21.39-3.51,3.66-3.78,12,4.58,22.43,15.36,30.31,25.31,20.41,25.78,34.01,60.98,39.74,93.26,2.39,13.47,6.89,42.09,2.99,54.43-2.28,7.21-13.34,6.85-15.7,1.78-1.66-3.56.22-19.02.04-24.54-1.32-41.55-16.35-101.61-45.53-132.47-4.79-5.06-11.26-8.36-15.51-13.99Z"/> <path class="cls-6" d="M282.04,585.51c-2.24.31-7.76.31-10,0-13.86-1.94-42.28-29.32-19.52-39.02,9.53-4.06,14-.19,22.97.07,10.5.3,17.79-4.99,28.08.92,19.2,11.04-8.58,36.22-21.53,38.03Z"/> <path class="cls-1" d="M282.04,585.51c-4.32,19.4,17.27,34.67,33.49,22.99,3.27-2.35,9.67-14.44,13.58-8.32,3.66,5.74-4.03,14.17-8.57,17.34-12.15,8.47-35.47,5.88-42.53-8h-1.96c-6.37,12.46-25.92,15.82-38.02,10.49-6.61-2.91-21.78-17.47-9.47-21.47,8.03,6.01,10.8,14.58,22.93,13.98,15.29-.75,23.04-12.31,20.54-27.01,2.24.31,7.76.31,10,0Z"/> <path class="cls-2" d="M410.04,456.51c52.35-2.68,60.31,88.93,11,100-12.8,2.87-26.32-1.7-37.31-8.19s-12.77-8.67-13.68-21.32c-1.84-25.31,8.8-68.89,39.99-70.49ZM414.22,486.64c0-7.08-5.74-12.81-12.81-12.81s-12.81,5.74-12.81,12.81,5.74,12.81,12.81,12.81,12.81-5.74,12.81-12.81Z"/> <path class="cls-3" d="M421.04,556.51c49.31-11.07,41.35-102.68-11-100-.96-2.54,4.7-2.92,5.65-2.93,55.83-.52,71.5,91.13,14.75,102.83-2.05.42-7.46,1.17-9.4.1Z"/> <path class="cls-2" d="M146.04,456.51c.65.05,1.37-.09,2,0,.33.05.68-.07,1,0,15.22,3.13,26.6,20.76,30.94,34.56,3.64,11.6,6.54,36.22,2.6,47.48-2.05,5.85-22.46,15.6-28.76,17.24-7.35,1.92-12.31,2.36-19.78.72-51.07-11.21-42.24-103.77,12-100ZM150.8,473.69c-15.4,2.9-13.63,28.44,4.68,25.75,15.56-2.28,11.3-28.76-4.68-25.75Z"/> <path class="cls-3" d="M134.04,556.51c-4.48,1.62-12.23-.27-16.69-1.81-35.33-12.26-35.71-59.94-14.73-85.1,10.69-12.83,23.83-15.72,39.96-15.08,1.92.08,4.01-1.03,3.45,2-54.24-3.77-63.07,88.79-12,100Z"/> <path class="cls-5" d="M149.04,456.51c-.32-.07-.67.05-1,0l.5-.98.5.98Z"/> <circle class="cls-4" cx="401.41" cy="486.64" r="12.81"/> <path class="cls-4" d="M150.8,473.69c15.97-3.01,20.23,23.47,4.68,25.75-18.31,2.69-20.08-22.85-4.68-25.75Z"/> </g> </g> </svg></span>
+    <span class="wordmark">Phonics<small>with Bella</small></span>
+  </button>
+  <div class="score" id="scoreBox" aria-live="polite">
+    <svg class="star" viewBox="0 0 24 24"><path fill="#FFD93D" stroke="#2B2350" stroke-width="1.4" stroke-linejoin="round" d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9z"/></svg>
+    <span id="score">0</span>
+  </div>
+</header>
+
+<main>
+
+<!-- HOME -->
+<section class="screen on" id="home">
+  <div class="hero"><span class="bunbig"><svg class="bun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 554.58 712.73"> <defs> <style> .cls-1 { fill: #8fa7cd; } .cls-2 { fill: #020304; } .cls-3 { fill: #fff; } .cls-4 { fill: #fefefe; } .cls-5 { fill: #f9e6e9; } .cls-6 { fill: #f4bece; } </style> </defs> <g id="Layer_1-2" data-name="Layer 1"> <g> <path class="cls-4" d="M214.11,223.43c-11.99-49.7-28.06-101.01-56.85-143.65C122.43,28.19,29.14-55.87,5.53,53.5c-18.53,85.84,10.98,175.76,70.52,238.5,1.82,1.92,8.02,5.17,8.01,7.99,0,1.52-14.66,19.42-17.03,23-25.86,38.9-38.57,83.11-44.85,129.15-1.2,8.77-.66,18.98-2.57,27.43s-8.17,17.33-11.31,25.69c-27.08,72.35,15.64,133.29,77.73,166.77,105.83,57.08,309.19,56.27,407.94-16.11,51.91-38.05,75.1-95.27,49.57-157.4-2.17-5.28-6.8-11.65-8.22-16.78-2.87-10.34-2.71-26.3-4.4-37.6-3.76-25.04-9.99-49.6-18.85-73.26-.09-2.29,5.88-9.33,7.51-12.36,2.95-5.49,6.04-13.68,7.21-19.79.99-5.2.52-13.54,2.2-17.8,1.25-3.18,9.66-10.63,12.49-14.51,11.97-16.41,19.84-39.59,5.1-56.92-6.92-8.14-16.88-11.69-26.49-15.48,32.43-56.11,43.66-129.73,25.47-192.5-23.37-80.66-94.47-25.59-129.01,12.98-27.07,30.24-44.77,67.63-58.46,105.55-29.92-14.24-51.7,4.28-58.56,33.43-1.13,4.82-1.99,21.05-4.89,23.1-3.47,2.38-7.39-.03-11.03-.11-13.18-.3-26.84.55-39.91,2.17-9.91,1.23-19.64,3.74-29.56,4.8Z"/> <path class="cls-1" d="M214.11,223.43c9.92-1.06,19.65-3.57,29.56-4.8,13.07-1.62,26.74-2.47,39.91-2.17,3.64.08,7.57,2.49,11.03.11,2.9-2.06,3.76-18.28,4.89-23.1,6.85-29.14,28.64-47.66,58.56-33.43,13.69-37.92,31.39-75.32,58.46-105.55,34.54-38.57,105.65-93.65,129.01-12.98,18.18,62.78,6.95,136.39-25.47,192.5,9.61,3.8,19.57,7.35,26.49,15.48,14.74,17.34,6.87,40.51-5.1,56.92-2.83,3.88-11.24,11.33-12.49,14.51-1.68,4.26-1.21,12.6-2.2,17.8-1.17,6.11-4.26,14.3-7.21,19.79-1.63,3.04-7.6,10.07-7.51,12.36,8.87,23.66,15.09,48.22,18.85,73.26,1.7,11.3,1.53,27.26,4.4,37.6,1.42,5.13,6.06,11.5,8.22,16.78,25.53,62.13,2.34,119.35-49.57,157.4-98.74,72.38-302.1,73.18-407.94,16.11-62.08-33.48-104.81-94.42-77.73-166.77,3.13-8.37,9.46-17.5,11.31-25.69s1.37-18.67,2.57-27.43c6.28-46.04,19-90.25,44.85-129.15,2.37-3.57,17.03-21.47,17.03-23,.01-2.82-6.19-6.07-8.01-7.99C16.51,229.26-13,139.34,5.53,53.5c23.61-109.37,116.9-25.31,151.73,26.29,28.79,42.64,44.86,93.95,56.85,143.65ZM183.3,246.26c-7.49-6.55,12.38-15.24,16.48-17.19-16.11-69.19-41.78-142.09-98.26-188.53C85.25,27.15,50.09,1.74,32.63,24.59c-15.83,20.72-18.95,76.86-16.58,102.4,5.64,60.61,35.25,122.07,80.64,162.43,3.08-2.5,17.46-12.63,17.43-3.44-.02,6.46-15.51,20.46-20.05,26.04-36.6,45.07-51.1,95.01-58.01,151.99-.76,6.23-.11,15.23-1.24,20.76-.87,4.27-6.8,12.25-8.95,17.05-21.31,47.72-8.68,95.85,29.16,130.19,88.54,80.35,288.38,81.2,392.37,33.34,66.31-30.51,112.62-87.58,81.11-162.83-2.49-5.95-8.3-13.91-9.23-19.77-1.35-8.61-1.15-18.66-2.38-27.62-3.64-26.31-8.44-52.69-18.82-77.23-41.82,8.67-68.65-37.64-82.24-70.21-12.56-1.33-25.77-6.71-34.77-15.69-29.82,8.98-70.55,18.84-97.36-2.68-14.69-11.79-15.85-28.96-8.85-45.51.74-1.76,6.79-11.77,6.18-12.31-11.8,1.27-23.53.77-35.35,2.14-19.58,2.27-36.11,9.2-54.29,12.73-2.16.42-6.32,1.43-8.1-.12ZM469.04,236.51c4.53-1,9.01-2.26,13.64-2.86,4.07-.53,20.54-.94,21.87-2.13,1.75-1.56,7.85-14.52,9.35-17.65,24.38-50.98,33.97-119.64,15.16-173.87-11.52-33.21-32.12-28.67-57.94-12.91-39.31,24.01-69.29,67.24-87.26,108.74-4.57,10.54-8.07,21.61-12.53,32.2,10.25,9.85,18.72,20.51,25.89,32.81,2.39,4.11,4.13,9.56,6.59,13.38.63.98-.1,1.79,2.24,1.28,3.24-30.06,14.18-61.5,30.59-86.91,5.98-9.26,27.33-36.52,37.99-38.05,6.08-.87,4.59,2.33,5.43,2.97-10.01,9.25-18.66,16.49-26.41,28.09-20.88,31.25-30.54,70.7-33.49,107.81,9.45,2.09,18.28,7.62,25.54,13.95,7.57-3.13,15.38-5.08,23.36-6.85ZM347.3,233.76c4.52-4.82,13.13-.23,18.09,1.89,6.3,2.69,12.17,6.46,18.17,9.72,1.43-4.12,11.77-12.01,11.33-15.11-.63-4.47-10.49-22.01-13.43-26.67-14.7-23.28-50.09-54.84-65.2-13.35-3.53,9.69-2.99,23.72-5.97,31.03-1.84,4.51-12.38,13.51-16.07,18.93-6.06,8.91-12.49,21.56-6.03,31.65,12.22,19.09,44.84,16.23,64.07,12.39,4.29-.86,17.85-3.96,20.76-6.24s2.67-14.85,3.85-19.3l-28.78-14.73c-2.53-2.06-2.84-8-.79-10.2ZM407.77,242.74c-9.31,1.9-19.24,24.71-18.51,33.04.79,9.04,19.47,17.42,27.16,16.68,10.42-1,20.66-24.35,19.54-33.36-1.18-9.53-19.69-18.1-28.19-16.37ZM441.24,289.72c-.39.23-3.78,6.33-4.78,7.7-1.82,2.48-5.53,4.2-5.41,7.47.15,4.13,10.72,22.12,13.57,26.53,9.59,14.84,33.79,42.51,53.35,29.52,18.46-12.27,10.69-38.49,19.07-49.93,7.91-10.79,17.83-16.91,21.5-31.5,9.55-37.94-47.77-33.01-69.88-27.88-2.83.66-16.12,4.13-17.15,5.85l-2.45,17.98c7.73,2.27,23.4,6.05,29.33,11.18,4.52,3.91,3.52,11.7-2.33,13.45-6.72,2.02-28.33-14.19-34.83-10.38Z"/> <path class="cls-4" d="M183.3,246.26c1.78,1.55,5.94.54,8.1.12,18.17-3.53,34.71-10.46,54.29-12.73,11.82-1.37,23.55-.87,35.35-2.14.61.54-5.43,10.56-6.18,12.31-7,16.55-5.84,33.72,8.85,45.51,26.81,21.51,67.54,11.66,97.36,2.68,9,8.98,22.21,14.36,34.77,15.69,13.59,32.57,40.42,78.88,82.24,70.21,10.38,24.54,15.18,50.92,18.82,77.23,1.24,8.96,1.03,19.01,2.38,27.62.92,5.87,6.74,13.83,9.23,19.77,31.51,75.24-14.8,132.31-81.11,162.83-104,47.85-303.83,47.01-392.37-33.34-37.84-34.34-50.47-82.46-29.16-130.19,2.15-4.8,8.08-12.79,8.95-17.05,1.13-5.53.48-14.53,1.24-20.76,6.92-56.97,21.41-106.92,58.01-151.99,4.54-5.59,20.03-19.58,20.05-26.04.03-9.19-14.35.94-17.43,3.44C51.3,249.07,21.69,187.61,16.05,127c-2.38-25.54.75-81.68,16.58-102.4,17.46-22.86,52.62,2.56,68.89,15.94,56.48,46.45,82.15,119.34,98.26,188.53-4.1,1.96-23.96,10.65-16.48,17.19ZM74.04,93.51c-.62.47-4.1.87-6.49,3.01-4.77,4.25-7.78,13.63-9.21,19.79-11.88,50.96,9.32,123.96,61.02,145.38,4.1,1.7,11.65,5.22,15.68,2.82,2.36,5.07,13.42,5.43,15.7-1.78,3.9-12.34-.6-40.96-2.99-54.43-5.73-32.28-19.32-67.48-39.74-93.26-7.88-9.95-18.31-20.73-30.31-25.31-3.28.27-3.39,3.58-3.66,3.78ZM80.88,482.66c-.08,8.11-3.46,16.05-3.88,24.31-2.93,56.95,55.66,76.15,99.71,49.71,11.07-6.65,16.19-11.17,17.32-24.68,1.65-19.81-.87-41.92-10.47-59.5-15.59-28.58-49.5-40.97-77.83-21.8-4.33,2.93-14.29,13.7-17.4,14.6-4.66,1.34-14.67-2.24-17.04.47-3.69,4.23,3.9,16.46,9.6,16.9ZM415.83,441.81c-43.09,3.72-58.6,49.73-55.78,87.19,1.21,16.07,5.25,20.45,18.68,28.32,17.42,10.21,37.78,13.9,57.52,8.91,37.4-9.46,48.59-48.66,36.01-82.25.15-.97,12.27-5.93,11.74-14.9-.44-7.36-8.02-3.59-12.44-3.5-9.15.19-13.44-8.34-20.61-13.48-10.2-7.32-22.45-11.38-35.12-10.29ZM272.04,585.51c2.5,14.7-5.25,26.26-20.54,27.01-12.12.6-14.9-7.97-22.93-13.98-12.32,4.01,2.86,18.57,9.47,21.47,12.1,5.33,31.66,1.96,38.02-10.49h1.96c7.06,13.88,30.38,16.47,42.53,8,4.54-3.16,12.23-11.6,8.57-17.34-3.91-6.12-10.31,5.97-13.58,8.32-16.22,11.67-37.82-3.59-33.49-22.99,12.95-1.81,40.73-26.99,21.53-38.03-10.28-5.91-17.57-.62-28.08-.92-8.98-.25-13.45-4.13-22.97-.07-22.76,9.7,5.67,37.08,19.52,39.02Z"/> <path class="cls-4" d="M469.04,236.51c4.15-6.98,9.36-13.08,13.17-20.33,14.53-27.68,24.94-86.22,8.65-113.99-4.52-7.71-6.92-5.71-10.82-8.68-.84-.64.65-3.84-5.43-2.97-10.65,1.53-32.01,28.79-37.99,38.05-16.41,25.41-27.35,56.85-30.59,86.91-2.34.51-1.61-.3-2.24-1.28-2.45-3.82-4.19-9.27-6.59-13.38-7.17-12.31-15.64-22.97-25.89-32.81,4.46-10.59,7.97-21.65,12.53-32.2,17.98-41.5,47.95-84.73,87.26-108.74,25.82-15.77,46.42-20.31,57.94,12.91,18.81,54.24,9.23,122.9-15.16,173.87-1.5,3.13-7.6,16.09-9.35,17.65-1.33,1.19-17.8,1.6-21.87,2.13-4.63.6-9.12,1.85-13.64,2.86Z"/> <path class="cls-6" d="M347.3,233.76c-2.05,2.19-1.74,8.14.79,10.2l28.78,14.73c-1.18,4.46-.89,16.98-3.85,19.3s-16.47,5.39-20.76,6.24c-19.23,3.84-51.85,6.7-64.07-12.39-6.46-10.1-.03-22.74,6.03-31.65,3.69-5.42,14.22-14.42,16.07-18.93,2.99-7.31,2.45-21.34,5.97-31.03,15.11-41.49,50.5-9.92,65.2,13.35,2.95,4.67,12.8,22.2,13.43,26.67.44,3.1-9.9,10.99-11.33,15.11-6-3.26-11.87-7.03-18.17-9.72-4.96-2.12-13.58-6.71-18.09-1.89Z"/> <path class="cls-6" d="M441.24,289.72c6.5-3.81,28.11,12.4,34.83,10.38,5.85-1.76,6.85-9.54,2.33-13.45-5.92-5.13-21.6-8.9-29.33-11.18l2.45-17.98c1.02-1.72,14.32-5.2,17.15-5.85,22.11-5.13,79.43-10.06,69.88,27.88-3.67,14.59-13.6,20.71-21.5,31.5-8.38,11.44-.61,37.65-19.07,49.93-19.55,13-43.76-14.68-53.35-29.52-2.85-4.41-13.42-22.4-13.57-26.53-.12-3.27,3.59-4.98,5.41-7.47,1.01-1.37,4.39-7.47,4.78-7.7Z"/> <path class="cls-5" d="M469.04,236.51c-7.98,1.77-15.79,3.72-23.36,6.85-7.25-6.32-16.08-11.86-25.54-13.95,2.95-37.11,12.61-76.56,33.49-107.81,7.75-11.61,16.4-18.84,26.41-28.09,3.9,2.97,6.3.97,10.82,8.68,16.29,27.77,5.88,86.3-8.65,113.99-3.81,7.26-9.02,13.35-13.17,20.33Z"/> <path class="cls-6" d="M407.77,242.74c8.49-1.73,27,6.83,28.19,16.37,1.12,9.01-9.12,32.35-19.54,33.36-7.69.74-26.36-7.65-27.16-16.68-.73-8.33,9.2-31.14,18.51-33.04Z"/> <path class="cls-5" d="M74.04,93.51c4.25,5.63,10.72,8.92,15.51,13.99,29.17,30.86,44.21,90.92,45.53,132.47.18,5.52-1.7,20.98-.04,24.54-4.03,2.4-11.58-1.12-15.68-2.82-51.71-21.42-72.91-94.43-61.02-145.38,1.44-6.15,4.44-15.53,9.21-19.79,2.4-2.14,5.87-2.54,6.49-3.01Z"/> <path class="cls-1" d="M415.83,441.81c12.67-1.09,24.92,2.97,35.12,10.29,7.17,5.14,11.46,13.68,20.61,13.48,4.42-.09,12-3.87,12.44,3.5.53,8.97-11.59,13.92-11.74,14.9,12.57,33.59,1.39,72.79-36.01,82.25-19.74,4.99-40.09,1.3-57.52-8.91-13.43-7.87-17.47-12.25-18.68-28.32-2.82-37.46,12.68-83.47,55.78-87.19ZM421.04,556.51c1.94,1.07,7.35.32,9.4-.1,56.75-11.71,41.08-103.35-14.75-102.83-.96,0-6.62.39-5.65,2.93-31.19,1.6-41.83,45.18-39.99,70.49.92,12.65,3.04,15.03,13.68,21.32s24.51,11.07,37.31,8.19Z"/> <path class="cls-1" d="M80.88,482.66c-5.7-.43-13.28-12.67-9.6-16.9,2.37-2.71,12.38.88,17.04-.47,3.1-.9,13.07-11.67,17.4-14.6,28.33-19.17,62.24-6.78,77.83,21.8,9.6,17.59,12.11,39.69,10.47,59.5-1.12,13.51-6.24,18.04-17.32,24.68-44.05,26.44-102.64,7.24-99.71-49.71.42-8.26,3.8-16.2,3.88-24.31ZM134.04,556.51c7.47,1.64,12.43,1.2,19.78-.72,6.3-1.64,26.71-11.39,28.76-17.24,3.94-11.26,1.04-35.88-2.6-47.48-4.33-13.8-15.72-31.43-30.94-34.56l-.5-.98-.5.98c-.63-.09-1.35.05-2,0,.56-3.03-1.53-1.93-3.45-2-16.13-.63-29.27,2.26-39.96,15.08-20.98,25.16-20.6,72.84,14.73,85.1,4.45,1.55,12.2,3.43,16.69,1.81Z"/> <path class="cls-1" d="M74.04,93.51c.27-.21.39-3.51,3.66-3.78,12,4.58,22.43,15.36,30.31,25.31,20.41,25.78,34.01,60.98,39.74,93.26,2.39,13.47,6.89,42.09,2.99,54.43-2.28,7.21-13.34,6.85-15.7,1.78-1.66-3.56.22-19.02.04-24.54-1.32-41.55-16.35-101.61-45.53-132.47-4.79-5.06-11.26-8.36-15.51-13.99Z"/> <path class="cls-6" d="M282.04,585.51c-2.24.31-7.76.31-10,0-13.86-1.94-42.28-29.32-19.52-39.02,9.53-4.06,14-.19,22.97.07,10.5.3,17.79-4.99,28.08.92,19.2,11.04-8.58,36.22-21.53,38.03Z"/> <path class="cls-1" d="M282.04,585.51c-4.32,19.4,17.27,34.67,33.49,22.99,3.27-2.35,9.67-14.44,13.58-8.32,3.66,5.74-4.03,14.17-8.57,17.34-12.15,8.47-35.47,5.88-42.53-8h-1.96c-6.37,12.46-25.92,15.82-38.02,10.49-6.61-2.91-21.78-17.47-9.47-21.47,8.03,6.01,10.8,14.58,22.93,13.98,15.29-.75,23.04-12.31,20.54-27.01,2.24.31,7.76.31,10,0Z"/> <path class="cls-2" d="M410.04,456.51c52.35-2.68,60.31,88.93,11,100-12.8,2.87-26.32-1.7-37.31-8.19s-12.77-8.67-13.68-21.32c-1.84-25.31,8.8-68.89,39.99-70.49ZM414.22,486.64c0-7.08-5.74-12.81-12.81-12.81s-12.81,5.74-12.81,12.81,5.74,12.81,12.81,12.81,12.81-5.74,12.81-12.81Z"/> <path class="cls-3" d="M421.04,556.51c49.31-11.07,41.35-102.68-11-100-.96-2.54,4.7-2.92,5.65-2.93,55.83-.52,71.5,91.13,14.75,102.83-2.05.42-7.46,1.17-9.4.1Z"/> <path class="cls-2" d="M146.04,456.51c.65.05,1.37-.09,2,0,.33.05.68-.07,1,0,15.22,3.13,26.6,20.76,30.94,34.56,3.64,11.6,6.54,36.22,2.6,47.48-2.05,5.85-22.46,15.6-28.76,17.24-7.35,1.92-12.31,2.36-19.78.72-51.07-11.21-42.24-103.77,12-100ZM150.8,473.69c-15.4,2.9-13.63,28.44,4.68,25.75,15.56-2.28,11.3-28.76-4.68-25.75Z"/> <path class="cls-3" d="M134.04,556.51c-4.48,1.62-12.23-.27-16.69-1.81-35.33-12.26-35.71-59.94-14.73-85.1,10.69-12.83,23.83-15.72,39.96-15.08,1.92.08,4.01-1.03,3.45,2-54.24-3.77-63.07,88.79-12,100Z"/> <path class="cls-5" d="M149.04,456.51c-.32-.07-.67.05-1,0l.5-.98.5.98Z"/> <circle class="cls-4" cx="401.41" cy="486.64" r="12.81"/> <path class="cls-4" d="M150.8,473.69c15.97-3.01,20.23,23.47,4.68,25.75-18.31,2.69-20.08-22.85-4.68-25.75Z"/> </g> </g> </svg></span><div class="bubble"><b>Hi, I'm Bella Bun!</b><br>What shall we play today?</div></div>
+  <p class="sub" style="text-align:center">Every star goes on the board up top. Five stars = a surprise!</p>
+  <div class="tiles">
+    <button class="tile t1" onclick="startSyll()"><span class="em">👏</span><b>Syllables</b><small>Clap out the beats in big words</small></button>
+    <button class="tile t5" onclick="openTeams()"><span class="em">🤝</span><b>Sound Teams</b><small>ch, sh, ee, oi and friends</small></button>
+    <button class="tile t2" onclick="openSight()"><span class="em">👀</span><b>Sight Words</b><small>Popcorn words that pop up everywhere</small></button>
+    <button class="tile t3" onclick="startBlocks()"><span class="em">🧱</span><b>Word Blocks</b><small>Snap little words into big ones</small></button>
+    <button class="tile t4" onclick="openRead()"><span class="em">📖</span><b>Read &amp; Learn</b><small>Easy sentences, then real facts</small></button>
+  </div>
+  <div class="install" id="installCard">
+    <b>Put Bella on the home screen 🎀</b>
+    <div id="installText"></div>
+  </div>
+</section>
+
+<!-- LETTERS -->
+<!-- SYLLABLES -->
+<section class="screen" id="syll">
+  <div class="bar"><button class="back" onclick="go('home')" aria-label="Back">←</button><h2>Syllables</h2><span class="pill" id="yLeft"></span></div>
+  <p class="sub">Big words are made of small beats. Clap once for each part, then tap the beats in order to build the word!</p>
+  <div class="teamcard"><div class="gapword" id="yWord" style="font-size:38px"></div><div class="name" id="yClap"></div></div>
+  <div class="tray" id="yTray" style="margin-top:16px"></div>
+  <div class="whole" id="yWhole"></div>
+  <p class="hint" id="yHint"></p>
+</section>
+
+<!-- SIGHT WORDS -->
+<section class="screen" id="sight">
+  <div class="bar"><button class="back" onclick="go('home')" aria-label="Back">←</button><h2>Sight Words</h2><span class="pill" id="sLeft"></span></div>
+  <div class="seg"><button id="segSPlay" onclick="sightMode('play')">Practice</button><button id="segSGrade" onclick="sightMode('grade')">By grade</button><button id="segSLearn" onclick="sightMode('learn')">What are they?</button></div>
+  <div id="sLearn" class="deck"><div class="dots" id="sDots"></div><div id="sCard"></div></div>
+  <div id="sGrade">
+    <p class="sub">Pick a grade to see its words.</p>
+    <div class="gloss" id="sGradeBtns" style="grid-template-columns:repeat(3,1fr)"></div>
+    <div id="sGradeList" style="margin-top:14px"></div>
+  </div>
+  <div id="sPlay">
+    <div class="row" style="justify-content:flex-start;gap:8px;margin-bottom:12px" id="sGradePick"></div>
+    <div class="teamcard"><div style="font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);font-weight:800">Your word</div><div class="gapword" id="sPrompt">…</div></div>
+    <div class="choices" id="sChoices"></div>
+    <p class="hint" id="sHint"></p>
+  </div>
+</section>
+
+<!-- WORD BLOCKS -->
+<section class="screen" id="blocks">
+  <div class="bar"><button class="back" onclick="go('home')" aria-label="Back">←</button><h2>Word Blocks</h2><span class="pill" id="bLeft"></span></div>
+  <p class="sub">Big words are made of little words you already know. Snap them together in order.</p>
+  <div class="row" style="margin-bottom:10px"><span id="bPrompt" style="font-family:var(--display);font-weight:800;font-size:26px;letter-spacing:-.01em"></span></div>
+  <div class="stage" id="bStage"></div>
+  <div class="tray" id="bTray"></div>
+  <div class="whole" id="bWhole"></div>
+  <p class="hint" id="bHint"></p>
+</section>
+
+<!-- SOUND TEAMS -->
+<section class="screen" id="teams">
+  <div class="bar"><button class="back" onclick="go('home')" aria-label="Back">←</button><h2>Sound Teams</h2><span class="pill" id="tLeft"></span></div>
+  <div class="seg"><button id="segLearn" onclick="teamsMode('learn')">Learn</button><button id="segGloss" onclick="teamsMode('gloss')">All teams</button><button id="segPlay" onclick="startTeams()">Quiz</button></div>
+  <div id="tLearn" class="deck">
+    <div class="dots" id="tDots"></div>
+    <div id="tCard"></div>
+  </div>
+  <div id="tGloss">
+    <p class="sub">Tap a team to see its words.</p>
+    <div class="gloss" id="tGlossGrid"></div>
+  </div>
+  <div id="tPlay">
+    <p class="sub">Two letters can team up to make one sound. Which team finishes the word?</p>
+    <div class="teamcard"><div class="em" id="tEm"></div><div class="gapword" id="tWord"></div></div>
+    <div class="teams" id="tChoices"></div>
+    <p class="hint" id="tHint"></p>
+  </div>
+</section>
+
+<!-- READ -->
+<section class="screen" id="read">
+  <div class="bar"><button class="back" onclick="go('home')" aria-label="Back">←</button><h2>Read &amp; Learn</h2><span class="pill" id="rLeft"></span></div>
+  <div class="seg"><button id="segRJust" onclick="readMode('just')">Just read</button><button id="segRFacts" onclick="readMode('facts')">Read facts</button></div>
+  <div id="rJust" class="deck">
+    <div class="seg" id="jLevels" style="margin-bottom:12px"></div>
+    <div class="dots" id="jDots"></div>
+    <div id="jCard"></div>
+  </div>
+  <div id="rFacts">
+  <p class="sub">Read it out loud. Stuck on a word? Tap it to break it into pieces.</p>
+  <div class="para" id="rPara"></div>
+  <div class="quiz" id="rQuiz"></div>
+  <p class="hint" id="rHint"></p>
+  </div>
+</section>
+
+</main>
+
+<!-- REWARD -->
+<div class="reward" id="reward" role="dialog" aria-modal="true">
+  <div class="rbox">
+    <div class="bun"><svg class="bun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 554.58 712.73"> <defs> <style> .cls-1 { fill: #8fa7cd; } .cls-2 { fill: #020304; } .cls-3 { fill: #fff; } .cls-4 { fill: #fefefe; } .cls-5 { fill: #f9e6e9; } .cls-6 { fill: #f4bece; } </style> </defs> <g id="Layer_1-2" data-name="Layer 1"> <g> <path class="cls-4" d="M214.11,223.43c-11.99-49.7-28.06-101.01-56.85-143.65C122.43,28.19,29.14-55.87,5.53,53.5c-18.53,85.84,10.98,175.76,70.52,238.5,1.82,1.92,8.02,5.17,8.01,7.99,0,1.52-14.66,19.42-17.03,23-25.86,38.9-38.57,83.11-44.85,129.15-1.2,8.77-.66,18.98-2.57,27.43s-8.17,17.33-11.31,25.69c-27.08,72.35,15.64,133.29,77.73,166.77,105.83,57.08,309.19,56.27,407.94-16.11,51.91-38.05,75.1-95.27,49.57-157.4-2.17-5.28-6.8-11.65-8.22-16.78-2.87-10.34-2.71-26.3-4.4-37.6-3.76-25.04-9.99-49.6-18.85-73.26-.09-2.29,5.88-9.33,7.51-12.36,2.95-5.49,6.04-13.68,7.21-19.79.99-5.2.52-13.54,2.2-17.8,1.25-3.18,9.66-10.63,12.49-14.51,11.97-16.41,19.84-39.59,5.1-56.92-6.92-8.14-16.88-11.69-26.49-15.48,32.43-56.11,43.66-129.73,25.47-192.5-23.37-80.66-94.47-25.59-129.01,12.98-27.07,30.24-44.77,67.63-58.46,105.55-29.92-14.24-51.7,4.28-58.56,33.43-1.13,4.82-1.99,21.05-4.89,23.1-3.47,2.38-7.39-.03-11.03-.11-13.18-.3-26.84.55-39.91,2.17-9.91,1.23-19.64,3.74-29.56,4.8Z"/> <path class="cls-1" d="M214.11,223.43c9.92-1.06,19.65-3.57,29.56-4.8,13.07-1.62,26.74-2.47,39.91-2.17,3.64.08,7.57,2.49,11.03.11,2.9-2.06,3.76-18.28,4.89-23.1,6.85-29.14,28.64-47.66,58.56-33.43,13.69-37.92,31.39-75.32,58.46-105.55,34.54-38.57,105.65-93.65,129.01-12.98,18.18,62.78,6.95,136.39-25.47,192.5,9.61,3.8,19.57,7.35,26.49,15.48,14.74,17.34,6.87,40.51-5.1,56.92-2.83,3.88-11.24,11.33-12.49,14.51-1.68,4.26-1.21,12.6-2.2,17.8-1.17,6.11-4.26,14.3-7.21,19.79-1.63,3.04-7.6,10.07-7.51,12.36,8.87,23.66,15.09,48.22,18.85,73.26,1.7,11.3,1.53,27.26,4.4,37.6,1.42,5.13,6.06,11.5,8.22,16.78,25.53,62.13,2.34,119.35-49.57,157.4-98.74,72.38-302.1,73.18-407.94,16.11-62.08-33.48-104.81-94.42-77.73-166.77,3.13-8.37,9.46-17.5,11.31-25.69s1.37-18.67,2.57-27.43c6.28-46.04,19-90.25,44.85-129.15,2.37-3.57,17.03-21.47,17.03-23,.01-2.82-6.19-6.07-8.01-7.99C16.51,229.26-13,139.34,5.53,53.5c23.61-109.37,116.9-25.31,151.73,26.29,28.79,42.64,44.86,93.95,56.85,143.65ZM183.3,246.26c-7.49-6.55,12.38-15.24,16.48-17.19-16.11-69.19-41.78-142.09-98.26-188.53C85.25,27.15,50.09,1.74,32.63,24.59c-15.83,20.72-18.95,76.86-16.58,102.4,5.64,60.61,35.25,122.07,80.64,162.43,3.08-2.5,17.46-12.63,17.43-3.44-.02,6.46-15.51,20.46-20.05,26.04-36.6,45.07-51.1,95.01-58.01,151.99-.76,6.23-.11,15.23-1.24,20.76-.87,4.27-6.8,12.25-8.95,17.05-21.31,47.72-8.68,95.85,29.16,130.19,88.54,80.35,288.38,81.2,392.37,33.34,66.31-30.51,112.62-87.58,81.11-162.83-2.49-5.95-8.3-13.91-9.23-19.77-1.35-8.61-1.15-18.66-2.38-27.62-3.64-26.31-8.44-52.69-18.82-77.23-41.82,8.67-68.65-37.64-82.24-70.21-12.56-1.33-25.77-6.71-34.77-15.69-29.82,8.98-70.55,18.84-97.36-2.68-14.69-11.79-15.85-28.96-8.85-45.51.74-1.76,6.79-11.77,6.18-12.31-11.8,1.27-23.53.77-35.35,2.14-19.58,2.27-36.11,9.2-54.29,12.73-2.16.42-6.32,1.43-8.1-.12ZM469.04,236.51c4.53-1,9.01-2.26,13.64-2.86,4.07-.53,20.54-.94,21.87-2.13,1.75-1.56,7.85-14.52,9.35-17.65,24.38-50.98,33.97-119.64,15.16-173.87-11.52-33.21-32.12-28.67-57.94-12.91-39.31,24.01-69.29,67.24-87.26,108.74-4.57,10.54-8.07,21.61-12.53,32.2,10.25,9.85,18.72,20.51,25.89,32.81,2.39,4.11,4.13,9.56,6.59,13.38.63.98-.1,1.79,2.24,1.28,3.24-30.06,14.18-61.5,30.59-86.91,5.98-9.26,27.33-36.52,37.99-38.05,6.08-.87,4.59,2.33,5.43,2.97-10.01,9.25-18.66,16.49-26.41,28.09-20.88,31.25-30.54,70.7-33.49,107.81,9.45,2.09,18.28,7.62,25.54,13.95,7.57-3.13,15.38-5.08,23.36-6.85ZM347.3,233.76c4.52-4.82,13.13-.23,18.09,1.89,6.3,2.69,12.17,6.46,18.17,9.72,1.43-4.12,11.77-12.01,11.33-15.11-.63-4.47-10.49-22.01-13.43-26.67-14.7-23.28-50.09-54.84-65.2-13.35-3.53,9.69-2.99,23.72-5.97,31.03-1.84,4.51-12.38,13.51-16.07,18.93-6.06,8.91-12.49,21.56-6.03,31.65,12.22,19.09,44.84,16.23,64.07,12.39,4.29-.86,17.85-3.96,20.76-6.24s2.67-14.85,3.85-19.3l-28.78-14.73c-2.53-2.06-2.84-8-.79-10.2ZM407.77,242.74c-9.31,1.9-19.24,24.71-18.51,33.04.79,9.04,19.47,17.42,27.16,16.68,10.42-1,20.66-24.35,19.54-33.36-1.18-9.53-19.69-18.1-28.19-16.37ZM441.24,289.72c-.39.23-3.78,6.33-4.78,7.7-1.82,2.48-5.53,4.2-5.41,7.47.15,4.13,10.72,22.12,13.57,26.53,9.59,14.84,33.79,42.51,53.35,29.52,18.46-12.27,10.69-38.49,19.07-49.93,7.91-10.79,17.83-16.91,21.5-31.5,9.55-37.94-47.77-33.01-69.88-27.88-2.83.66-16.12,4.13-17.15,5.85l-2.45,17.98c7.73,2.27,23.4,6.05,29.33,11.18,4.52,3.91,3.52,11.7-2.33,13.45-6.72,2.02-28.33-14.19-34.83-10.38Z"/> <path class="cls-4" d="M183.3,246.26c1.78,1.55,5.94.54,8.1.12,18.17-3.53,34.71-10.46,54.29-12.73,11.82-1.37,23.55-.87,35.35-2.14.61.54-5.43,10.56-6.18,12.31-7,16.55-5.84,33.72,8.85,45.51,26.81,21.51,67.54,11.66,97.36,2.68,9,8.98,22.21,14.36,34.77,15.69,13.59,32.57,40.42,78.88,82.24,70.21,10.38,24.54,15.18,50.92,18.82,77.23,1.24,8.96,1.03,19.01,2.38,27.62.92,5.87,6.74,13.83,9.23,19.77,31.51,75.24-14.8,132.31-81.11,162.83-104,47.85-303.83,47.01-392.37-33.34-37.84-34.34-50.47-82.46-29.16-130.19,2.15-4.8,8.08-12.79,8.95-17.05,1.13-5.53.48-14.53,1.24-20.76,6.92-56.97,21.41-106.92,58.01-151.99,4.54-5.59,20.03-19.58,20.05-26.04.03-9.19-14.35.94-17.43,3.44C51.3,249.07,21.69,187.61,16.05,127c-2.38-25.54.75-81.68,16.58-102.4,17.46-22.86,52.62,2.56,68.89,15.94,56.48,46.45,82.15,119.34,98.26,188.53-4.1,1.96-23.96,10.65-16.48,17.19ZM74.04,93.51c-.62.47-4.1.87-6.49,3.01-4.77,4.25-7.78,13.63-9.21,19.79-11.88,50.96,9.32,123.96,61.02,145.38,4.1,1.7,11.65,5.22,15.68,2.82,2.36,5.07,13.42,5.43,15.7-1.78,3.9-12.34-.6-40.96-2.99-54.43-5.73-32.28-19.32-67.48-39.74-93.26-7.88-9.95-18.31-20.73-30.31-25.31-3.28.27-3.39,3.58-3.66,3.78ZM80.88,482.66c-.08,8.11-3.46,16.05-3.88,24.31-2.93,56.95,55.66,76.15,99.71,49.71,11.07-6.65,16.19-11.17,17.32-24.68,1.65-19.81-.87-41.92-10.47-59.5-15.59-28.58-49.5-40.97-77.83-21.8-4.33,2.93-14.29,13.7-17.4,14.6-4.66,1.34-14.67-2.24-17.04.47-3.69,4.23,3.9,16.46,9.6,16.9ZM415.83,441.81c-43.09,3.72-58.6,49.73-55.78,87.19,1.21,16.07,5.25,20.45,18.68,28.32,17.42,10.21,37.78,13.9,57.52,8.91,37.4-9.46,48.59-48.66,36.01-82.25.15-.97,12.27-5.93,11.74-14.9-.44-7.36-8.02-3.59-12.44-3.5-9.15.19-13.44-8.34-20.61-13.48-10.2-7.32-22.45-11.38-35.12-10.29ZM272.04,585.51c2.5,14.7-5.25,26.26-20.54,27.01-12.12.6-14.9-7.97-22.93-13.98-12.32,4.01,2.86,18.57,9.47,21.47,12.1,5.33,31.66,1.96,38.02-10.49h1.96c7.06,13.88,30.38,16.47,42.53,8,4.54-3.16,12.23-11.6,8.57-17.34-3.91-6.12-10.31,5.97-13.58,8.32-16.22,11.67-37.82-3.59-33.49-22.99,12.95-1.81,40.73-26.99,21.53-38.03-10.28-5.91-17.57-.62-28.08-.92-8.98-.25-13.45-4.13-22.97-.07-22.76,9.7,5.67,37.08,19.52,39.02Z"/> <path class="cls-4" d="M469.04,236.51c4.15-6.98,9.36-13.08,13.17-20.33,14.53-27.68,24.94-86.22,8.65-113.99-4.52-7.71-6.92-5.71-10.82-8.68-.84-.64.65-3.84-5.43-2.97-10.65,1.53-32.01,28.79-37.99,38.05-16.41,25.41-27.35,56.85-30.59,86.91-2.34.51-1.61-.3-2.24-1.28-2.45-3.82-4.19-9.27-6.59-13.38-7.17-12.31-15.64-22.97-25.89-32.81,4.46-10.59,7.97-21.65,12.53-32.2,17.98-41.5,47.95-84.73,87.26-108.74,25.82-15.77,46.42-20.31,57.94,12.91,18.81,54.24,9.23,122.9-15.16,173.87-1.5,3.13-7.6,16.09-9.35,17.65-1.33,1.19-17.8,1.6-21.87,2.13-4.63.6-9.12,1.85-13.64,2.86Z"/> <path class="cls-6" d="M347.3,233.76c-2.05,2.19-1.74,8.14.79,10.2l28.78,14.73c-1.18,4.46-.89,16.98-3.85,19.3s-16.47,5.39-20.76,6.24c-19.23,3.84-51.85,6.7-64.07-12.39-6.46-10.1-.03-22.74,6.03-31.65,3.69-5.42,14.22-14.42,16.07-18.93,2.99-7.31,2.45-21.34,5.97-31.03,15.11-41.49,50.5-9.92,65.2,13.35,2.95,4.67,12.8,22.2,13.43,26.67.44,3.1-9.9,10.99-11.33,15.11-6-3.26-11.87-7.03-18.17-9.72-4.96-2.12-13.58-6.71-18.09-1.89Z"/> <path class="cls-6" d="M441.24,289.72c6.5-3.81,28.11,12.4,34.83,10.38,5.85-1.76,6.85-9.54,2.33-13.45-5.92-5.13-21.6-8.9-29.33-11.18l2.45-17.98c1.02-1.72,14.32-5.2,17.15-5.85,22.11-5.13,79.43-10.06,69.88,27.88-3.67,14.59-13.6,20.71-21.5,31.5-8.38,11.44-.61,37.65-19.07,49.93-19.55,13-43.76-14.68-53.35-29.52-2.85-4.41-13.42-22.4-13.57-26.53-.12-3.27,3.59-4.98,5.41-7.47,1.01-1.37,4.39-7.47,4.78-7.7Z"/> <path class="cls-5" d="M469.04,236.51c-7.98,1.77-15.79,3.72-23.36,6.85-7.25-6.32-16.08-11.86-25.54-13.95,2.95-37.11,12.61-76.56,33.49-107.81,7.75-11.61,16.4-18.84,26.41-28.09,3.9,2.97,6.3.97,10.82,8.68,16.29,27.77,5.88,86.3-8.65,113.99-3.81,7.26-9.02,13.35-13.17,20.33Z"/> <path class="cls-6" d="M407.77,242.74c8.49-1.73,27,6.83,28.19,16.37,1.12,9.01-9.12,32.35-19.54,33.36-7.69.74-26.36-7.65-27.16-16.68-.73-8.33,9.2-31.14,18.51-33.04Z"/> <path class="cls-5" d="M74.04,93.51c4.25,5.63,10.72,8.92,15.51,13.99,29.17,30.86,44.21,90.92,45.53,132.47.18,5.52-1.7,20.98-.04,24.54-4.03,2.4-11.58-1.12-15.68-2.82-51.71-21.42-72.91-94.43-61.02-145.38,1.44-6.15,4.44-15.53,9.21-19.79,2.4-2.14,5.87-2.54,6.49-3.01Z"/> <path class="cls-1" d="M415.83,441.81c12.67-1.09,24.92,2.97,35.12,10.29,7.17,5.14,11.46,13.68,20.61,13.48,4.42-.09,12-3.87,12.44,3.5.53,8.97-11.59,13.92-11.74,14.9,12.57,33.59,1.39,72.79-36.01,82.25-19.74,4.99-40.09,1.3-57.52-8.91-13.43-7.87-17.47-12.25-18.68-28.32-2.82-37.46,12.68-83.47,55.78-87.19ZM421.04,556.51c1.94,1.07,7.35.32,9.4-.1,56.75-11.71,41.08-103.35-14.75-102.83-.96,0-6.62.39-5.65,2.93-31.19,1.6-41.83,45.18-39.99,70.49.92,12.65,3.04,15.03,13.68,21.32s24.51,11.07,37.31,8.19Z"/> <path class="cls-1" d="M80.88,482.66c-5.7-.43-13.28-12.67-9.6-16.9,2.37-2.71,12.38.88,17.04-.47,3.1-.9,13.07-11.67,17.4-14.6,28.33-19.17,62.24-6.78,77.83,21.8,9.6,17.59,12.11,39.69,10.47,59.5-1.12,13.51-6.24,18.04-17.32,24.68-44.05,26.44-102.64,7.24-99.71-49.71.42-8.26,3.8-16.2,3.88-24.31ZM134.04,556.51c7.47,1.64,12.43,1.2,19.78-.72,6.3-1.64,26.71-11.39,28.76-17.24,3.94-11.26,1.04-35.88-2.6-47.48-4.33-13.8-15.72-31.43-30.94-34.56l-.5-.98-.5.98c-.63-.09-1.35.05-2,0,.56-3.03-1.53-1.93-3.45-2-16.13-.63-29.27,2.26-39.96,15.08-20.98,25.16-20.6,72.84,14.73,85.1,4.45,1.55,12.2,3.43,16.69,1.81Z"/> <path class="cls-1" d="M74.04,93.51c.27-.21.39-3.51,3.66-3.78,12,4.58,22.43,15.36,30.31,25.31,20.41,25.78,34.01,60.98,39.74,93.26,2.39,13.47,6.89,42.09,2.99,54.43-2.28,7.21-13.34,6.85-15.7,1.78-1.66-3.56.22-19.02.04-24.54-1.32-41.55-16.35-101.61-45.53-132.47-4.79-5.06-11.26-8.36-15.51-13.99Z"/> <path class="cls-6" d="M282.04,585.51c-2.24.31-7.76.31-10,0-13.86-1.94-42.28-29.32-19.52-39.02,9.53-4.06,14-.19,22.97.07,10.5.3,17.79-4.99,28.08.92,19.2,11.04-8.58,36.22-21.53,38.03Z"/> <path class="cls-1" d="M282.04,585.51c-4.32,19.4,17.27,34.67,33.49,22.99,3.27-2.35,9.67-14.44,13.58-8.32,3.66,5.74-4.03,14.17-8.57,17.34-12.15,8.47-35.47,5.88-42.53-8h-1.96c-6.37,12.46-25.92,15.82-38.02,10.49-6.61-2.91-21.78-17.47-9.47-21.47,8.03,6.01,10.8,14.58,22.93,13.98,15.29-.75,23.04-12.31,20.54-27.01,2.24.31,7.76.31,10,0Z"/> <path class="cls-2" d="M410.04,456.51c52.35-2.68,60.31,88.93,11,100-12.8,2.87-26.32-1.7-37.31-8.19s-12.77-8.67-13.68-21.32c-1.84-25.31,8.8-68.89,39.99-70.49ZM414.22,486.64c0-7.08-5.74-12.81-12.81-12.81s-12.81,5.74-12.81,12.81,5.74,12.81,12.81,12.81,12.81-5.74,12.81-12.81Z"/> <path class="cls-3" d="M421.04,556.51c49.31-11.07,41.35-102.68-11-100-.96-2.54,4.7-2.92,5.65-2.93,55.83-.52,71.5,91.13,14.75,102.83-2.05.42-7.46,1.17-9.4.1Z"/> <path class="cls-2" d="M146.04,456.51c.65.05,1.37-.09,2,0,.33.05.68-.07,1,0,15.22,3.13,26.6,20.76,30.94,34.56,3.64,11.6,6.54,36.22,2.6,47.48-2.05,5.85-22.46,15.6-28.76,17.24-7.35,1.92-12.31,2.36-19.78.72-51.07-11.21-42.24-103.77,12-100ZM150.8,473.69c-15.4,2.9-13.63,28.44,4.68,25.75,15.56-2.28,11.3-28.76-4.68-25.75Z"/> <path class="cls-3" d="M134.04,556.51c-4.48,1.62-12.23-.27-16.69-1.81-35.33-12.26-35.71-59.94-14.73-85.1,10.69-12.83,23.83-15.72,39.96-15.08,1.92.08,4.01-1.03,3.45,2-54.24-3.77-63.07,88.79-12,100Z"/> <path class="cls-5" d="M149.04,456.51c-.32-.07-.67.05-1,0l.5-.98.5.98Z"/> <circle class="cls-4" cx="401.41" cy="486.64" r="12.81"/> <path class="cls-4" d="M150.8,473.69c15.97-3.01,20.23,23.47,4.68,25.75-18.31,2.69-20.08-22.85-4.68-25.75Z"/> </g> </g> </svg></div>
+    <div class="em" id="rEm" style="font-size:40px">🌟</div>
+    <h2 id="rTitle">Five stars!</h2>
+    <p id="rMsg">You are doing great.</p>
+    <button class="big" onclick="closeReward()">Keep going!</button>
+  </div>
+</div>
+<canvas id="confetti"></canvas>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =============== DATA =============== */
+const LETTERS = "abcdefghijklmnopqrstuvwxyz".split("");
+
+// Dolch pre-primer + primer sight words
+const SIGHT = ["a","and","away","big","blue","can","come","down","find","for","funny","go","help","here","I","in","is","it","jump","little","look","make","me","my","not","one","play","red","run","said","see","the","three","to","two","up","we","where","yellow","you","all","am","are","at","ate","be","black","brown","but","came","did","do","eat","four","get","good","have","he","into","like","must","new","no","now","on","our","out","please","pretty","ran","ride","saw","say","she","so","soon","that","there","they","this","too","under","want","was","well","went","what","white","who","will","with","yes"];
+
+// Big words built from smaller sayable chunks
+const CHUNKS = [
+  ["four","teen"],["fif","teen"],["six","teen"],["seven","teen"],["eigh","teen"],["nine","teen"],
+  ["fe","male"],["sun","set"],["in","to"],["cup","cake"],["rain","bow"],["pan","cake"],
+  ["foot","ball"],["bed","time"],["in","side"],["out","side"],["some","thing"],["birth","day"],
+  ["play","ground"],["can","not"],["any","one"],["every","one"],["home","work"],["sea","shell"],
+  ["snow","man"],["star","fish"],["bath","tub"],["butter","fly"],["grand","ma"],["pop","corn"],
+  ["after","noon"],["basket","ball"],["water","melon"],["straw","berry"],["under","stand"],["sand","box"],["fish","bowl"],["lily","pad"],["back","pack"],["tooth","brush"],["sun","set"],["back","yard"],["sea","shell"],["farm","yard"],["camp","fire"],["gold","fish"],["tooth","fairy"],["air","plane"],["hedge","hog"],["marsh","mallows"],["sun","shine"],["snow","flakes"],["tree","house"],["leaf","pile"],["light","house"],["rain","drop"],["cat","tails"]
+];
+
+// Sight-word explainer cards (kid-friendly)
+const SIGHT_INTRO = [
+ {em:"🍿",h:"Popcorn words",t:"Some words <b>pop up</b> everywhere — in every book, on every page. Words like <b>the</b>, <b>it</b> and <b>and</b>. People call them <b>sight words</b> or <b>popcorn words</b>.",pop:["the","it","and","is","you"]},
+ {em:"👀",h:"You just know them",t:"You don't sound these words out. You see them and you <b>just know</b> them — like you know your own name. That is why they are called <b>sight</b> words.",pop:["said","was","of","they"]},
+ {em:"🚀",h:"Why they help",t:"When you know lots of sight words, you don't have to stop and think. You read <b>faster</b> and <b>smoother</b>, and you understand the story better.",pop:["have","with","what","from"]},
+ {em:"⭐",h:"Other names",t:"Some schools call them <b>high-frequency words</b>, <b>star words</b> or <b>core words</b>. Same idea: words you see all the time and know by heart.",pop:["star words","core words","popcorn words"]},
+ {em:"🎒",h:"A few more each year",t:"Every grade adds new sight words. Tap <b>By grade</b> to see them, or <b>Practice</b> to start spotting them.",pop:["K","1st","2nd","3rd","4th","5th"]}
+];
+// Sight words by grade, with sentences that use them
+const GRADES = [
+ {g:"K",name:"Kindergarten",words:["a","and","be","but","do","have","he","she","they","was","what","with","the","to","I","is","it","in","you","that","of","for","are","on","said","we","can","see","my","go","up","look","little","play","like","this","me","here","at","come"],
+  sents:["She said we can play here.","They have a little dog.","What do you see in the box?","He was up on the hill.","I like to look at the stars.","Come with me to the park.","It is in my bag.","We go to school on the bus."]},
+ {g:"1st",name:"First grade",words:["after","again","could","from","had","her","his","of","then","when","an","any","as","ask","by","every","fly","give","going","has","him","how","just","know","let","live","may","old","once","open","over","put","round","some","stop","take","thank","them","think","walk","were","who"],
+  sents:["After lunch we could play again.","She had her hat and his coat.","When can we go from here?","Then we will walk to the store.","I know how to fly a kite.","Ask him to give you some.","They were going to the old barn.","Thank you for the gift."]},
+ {g:"2nd",name:"Second grade",words:["around","because","been","before","does","don't","goes","right","which","write","always","best","both","buy","call","cold","fast","first","five","found","gave","made","many","off","or","pull","read","sing","sit","sleep","tell","their","these","those","upon","us","use","very","wash","why","wish","work","would","your"],
+  sents:["We went around the lake because it was pretty.","Which book would you like to read?","She goes to bed before it is dark.","Does he always write his name first?","Don't sit on the wet grass.","I have been to the zoo many times.","Turn right at the big tree.","Wash your hands before you eat."]},
+ {g:"3rd",name:"Third grade",words:["better","carry","eight","laugh","light","myself","only","own","shall","together","about","bring","clean","cut","done","draw","drink","fall","far","full","got","grow","hold","hot","hurt","if","keep","kind","long","much","never","pick","seven","show","six","small","start","ten","today","try","warm"],
+  sents:["We laugh together when the show is funny.","I can carry the light box myself.","She has her own room with eight books.","Only the small cat can fit in there.","It is better to try than to never start.","Shall we draw a picture today?","Bring a warm coat if it gets cold.","Keep the drink full and clean."]},
+ {g:"4th",name:"Fourth grade",words:["area","body","certain","complete","measure","notice","piece","questions","unit","usually","although","answer","building","carefully","center","course","describe","different","during","early","enough","example","explain","family","figure","finally","follow","important","instead","interest","learn","matter","perhaps","picture","possible","problem","reason","remember","several","surface","through","toward","whole"],
+  sents:["Did you notice the piece that was missing?","We usually measure the area of the room.","Answer the questions at the end of the unit.","Your body needs a certain amount of sleep.","Finally the building was complete.","Follow the example carefully.","It is important to remember the reason.","We walked through the center of town."]},
+ {g:"5th",name:"Fifth grade",words:["among","course","equation","language","machine","minutes","produce","quickly","shown","special","amount","ancient","beneath","between","century","develop","direction","distance","engine","especially","except","experience","factory","government","history","material","natural","necessary","observe","period","position","practice","process","property","region","represent","science","similar","solution","various","weight"],
+  sents:["The machine can produce a part in two minutes.","Solve the equation quickly and check the answer.","English is the language shown on the sign.","Among all the shells, this one is special.","Of course we will observe the science experiment.","The engine sits beneath the hood.","The factory is in a region between two rivers.","Practice is necessary to develop a skill."]}
+];
+let sg=0; // selected grade index
+
+// Simple sentences built from sight words — used for "find it in a sentence"
+const SENTENCES = ["I can see the big red ball.","We went to the park to play.","She said it was a funny little dog.","Look at the blue and yellow bird.","They ran up and down the hill.","Can you help me find my hat?","He has three new books.","Where did the cat go?","It is good to eat with our friends.","Come here and look at this.","Do you want to ride the bus?","The little fish went into the pond.","We saw a black and white cow.","Please come and play with me.","Who ate all the cake?","I like to jump and run.","Are you going out now?","There was a pretty flower under the tree.","What did you get for me?","My mom will make a cake soon."];
+function lookalikes(w){ // words that look similar: same length or same first letter
+  const c=SIGHT.filter(x=>x!==w && (x[0]===w[0] || x.length===w.length)); return pick(c.length>=3?c:SIGHT.filter(x=>x!==w),3);
+}
+
+// Sound families: teams that make the same sound, example words, and use-it-in-a-sentence practice
+const FAMILIES = [
+ {em:"🌧️",name:"the long a sound",teams:{ai:["rain","snail","train","tail","mail","paint"],ay:["play","day","say","way","stay","gray"]},
+  sents:[["The ___ made the grass wet.","rain"],["We will ___ in the park.","play"],["The ___ goes on the track.","train"],["The dog wags its ___.","tail"]]},
+ {em:"🌳",name:"the long e sound",teams:{ee:["tree","bee","feet","seed","green","sleep"],ea:["meat","sea","leaf","read","eat","team"]},
+  sents:[["A ___ can sting you.","bee"],["I ___ a book at night.","read"],["The ___ has many leaves.","tree"],["Fish swim in the ___.","sea"]]},
+ {em:"⛵",name:"the long o sound",teams:{oa:["boat","goat","soap","road","coat","toast"],ow:["snow","grow","show","slow","yellow","window"]},
+  sents:[["The ___ floats on the water.","boat"],["Wash your hands with ___.","soap"],["___ is cold and white.","Snow"],["Plants ___ in the sun.","grow"]]},
+ {em:"💡",name:"the long i sound",teams:{igh:["light","night","high","right","bright","tight"],ie:["pie","tie","lie","cried","tried","flies"],y:["fly","sky","my","cry","why","dry"]},
+  sents:[["The sun is very ___.","bright"],["Birds ___ in the sky.","fly"],["We eat apple ___.","pie"],["It is dark at ___.","night"]]},
+ {em:"🪙",name:"the oy sound",teams:{oi:["coin","oil","soil","boil","join","point"],oy:["boy","toy","joy","enjoy","cowboy","royal"]},
+  sents:[["I found a ___ on the floor.","coin"],["Plants grow in the ___.","soil"],["The ___ has a red ball.","boy"],["My favorite ___ is a bear.","toy"]]},
+ {em:"🦉",name:"the ow sound",teams:{ou:["cloud","house","mouse","out","loud","round"],ow:["cow","owl","town","down","brown","flower"]},
+  sents:[["A ___ gives us milk.","cow"],["The ___ is white and fluffy.","cloud"],["An ___ hoots at night.","owl"],["The ___ is tiny and gray.","mouse"]]},
+ {em:"🌙",name:"two oo sounds",teams:{oo:["moon","spoon","food","zoo","cool","pool"],"oo ":["book","look","good","cook","foot","wood"]},
+  sents:[["I eat soup with a ___.","spoon"],["The ___ shines at night.","moon"],["I read a good ___.","book"],["We swim in the ___.","pool"]]},
+ {em:"🐦",name:"the er sound",teams:{er:["her","fern","under","water","sister","letter"],ir:["bird","shirt","girl","first","dirt","third"],ur:["fur","turn","nurse","hurt","purple","turtle"]},
+  sents:[["A ___ can fly.","bird"],["The cat has soft ___.","fur"],["Grapes can be ___.","purple"],["I wear a clean ___.","shirt"]]},
+ {em:"🚗",name:"bossy r",teams:{ar:["car","star","farm","park","arm","dark"],or:["corn","fork","horse","short","storm","morning"]},
+  sents:[["Cows live on a ___.","farm"],["I eat with a ___.","fork"],["A ___ shines at night.","star"],["A ___ can run fast.","horse"]]},
+ {em:"🐥",name:"h teams",teams:{ch:["chair","cheese","chick","chin","lunch","church"],sh:["ship","fish","shell","shop","shoe","wish"],th:["bath","thumb","three","think","teeth","math"],wh:["whale","wheel","white","when","what","why"],ph:["phone","photo","graph","dolphin"]},
+  sents:[["I sit on a ___.","chair"],["A ___ swims in the sea.","fish"],["I brush my ___.","teeth"],["A ___ is a big sea animal.","whale"],["I take a ___ with my camera.","photo"]]},
+ {em:"🦆",name:"end teams",teams:{ck:["duck","sock","clock","rock","truck","black"],ng:["ring","king","song","long","sing","wing"]},
+  sents:[["A ___ says quack.","duck"],["The ___ tells the time.","clock"],["A ___ wears a crown.","king"],["Birds sing a ___.","song"]]}
+];
+const FAMCOLS=["var(--grape)","var(--coral)","var(--sea)","var(--tang)","var(--leaf)"];
+
+// Sound teams: [before, team, after, emoji, [two wrong teams that don't make real words]]
+const TEAMS = [
+ ["","ch","air","🪑",["sh","th"]],["","ch","eese","🧀",["sh","wh"]],["","ch","ick","🐥",["sh","th"]],["","ch","erry","🍒",["sh","th"]],["pea","ch","","🍑",["sh","ck"]],
+ ["","sh","ip","🚢",["th","wh"]],["fi","sh","","🐟",["ch","th"]],["","sh","ell","🐚",["ch","th"]],["","sh","eep","🐑",["ch","th"]],["","sh","oe","👟",["ch","th"]],
+ ["ba","th","","🛁",["sh","ck"]],["","th","umb","👍",["sh","ch"]],["tee","th","","🦷",["sh","ck"]],["","th","ree","3️⃣",["sh","ch"]],
+ ["","wh","ale","🐋",["th","ph"]],["","wh","eel","🛞",["th","ph"]],["","ph","one","📱",["wh","th"]],
+ ["du","ck","","🦆",["sh","th"]],["so","ck","","🧦",["sh","th"]],["clo","ck","","⏰",["sh","th"]],
+ ["tr","ee","","🌳",["oa","oi"]],["b","ee","","🐝",["oa","ai"]],["f","ee","t","🦶",["oa","oi"]],["gr","ee","n","🟢",["oa","ai"]],
+ ["s","ea","","🌊",["oi","oa"]],["l","ea","f","🍃",["oi","oo"]],["b","ea","ch","🏖️",["oi","oo"]],
+ ["b","oa","t","⛵",["ee","oi"]],["g","oa","t","🐐",["ee","oi"]],["s","oa","p","🧼",["ee","oi"]],["r","oa","d","🛣️",["ee","oi"]],
+ ["r","ai","n","🌧️",["oa","oi"]],["sn","ai","l","🐌",["oa","oi"]],["tr","ai","n","🚂",["oa","oi"]],
+ ["c","oi","n","🪙",["ee","ai"]],["","oi","l","🛢️",["ee","oa"]],["b","oy","","👦",["ee","oa"]],["t","oy","","🧸",["ee","oa"]],
+ ["cl","ou","d","☁️",["ee","oa"]],["h","ou","se","🏠",["ee","oa"]],["m","ou","se","🐭",["ee","oa"]],["c","ow","","🐄",["ee","oa"]],["","ow","l","🦉",["ee","oa"]],
+ ["m","oo","n","🌙",["ee","oa"]],["b","oo","k","📖",["ee","oa"]],["sp","oo","n","🥄",["ee","oa"]],
+ ["c","ar","","🚗",["or","er"]],["st","ar","","⭐",["or","er"]],["f","ar","m","🚜",["or","er"]],["c","or","n","🌽",["ar","er"]],["h","or","se","🐴",["ar","er"]],["f","or","k","🍴",["ar","er"]],
+ ["b","ir","d","🐦",["ar","or"]],["sh","ir","t","👕",["ar","or"]],["","igh","t","💡",["ee","oa"]],["n","igh","t","🌃",["ee","oa"]],
+ ["r","ing","","💍",["ong","ang"]],["k","ing","","👑",["ong","ang"]],["s","ong","","🎵",["ing","ang"]],
+ ["","ch","urch","⛪",["sh","th"]],["ben","ch","","🪑",["sh","th"]],["mat","ch","","🔥",["sh","th"]],["lun","ch","","🥪",["sh","th"]],["","ch","ain","⛓️",["sh","th"]],
+ ["bru","sh","","🖌️",["ch","th"]],["di","sh","","🍽️",["ch","th"]],["","sh","ark","🦈",["ch","th"]],["","sh","irt","👕",["ch","th"]],["cra","sh","","💥",["ch","th"]],
+ ["","th","orn","🌹",["sh","ch"]],["clo","th","","👚",["sh","ck"]],["mo","th","","🦋",["sh","ck"]],["pa","th","","🛤️",["sh","ck"]],
+ ["","wh","isk","🥄",["th","ph"]],["","wh","istle","😗",["th","ph"]],["","ph","oto","📷",["wh","th"]],["gra","ph","","📊",["wh","th"]],
+ ["ro","ck","et","🚀",["sh","th"]],["sti","ck","","🥢",["sh","th"]],["tru","ck","","🚚",["sh","th"]],["che","ck","","✅",["sh","th"]],["ba","ck","pack","🎒",["sh","th"]],
+ ["","ee","l","🦅",["oa","oi"]],["thr","ee","","3️⃣",["oa","ai"]],["qu","ee","n","👑",["oa","ai"]],["w","ee","d","🌿",["oa","ai"]],["sl","ee","p","😴",["oa","ai"]],
+ ["p","ea","","🫛",["oi","oa"]],["t","ea","","🍵",["oi","oo"]],["m","ea","l","🍲",["oi","oo"]],["cr","ea","m","🍦",["oi","oo"]],["b","ea","n","🫘",["oi","oo"]],
+ ["c","oa","t","🧥",["ee","oi"]],["t","oa","st","🍞",["ee","oi"]],["fl","oa","t","🎈",["ee","oi"]],["cl","oa","k","🧙",["ee","oi"]],
+ ["p","ai","l","🪣",["oa","oi"]],["n","ai","l","💅",["oa","oi"]],["m","ai","l","📬",["oa","oi"]],["ch","ai","n","⛓️",["oa","oi"]],
+ ["j","oi","n","🤝",["ee","ai"]],["p","oi","nt","👉",["ee","ai"]],["s","oi","l","🪴",["ee","ai"]],["j","oy","","😊",["ee","oa"]],["en","joy","","🥳",["ee","oa"]],
+ ["m","ou","th","👄",["ee","oa"]],["s","ou","nd","🔊",["ee","oa"]],["r","ou","nd","⭕",["ee","oa"]],["cr","ow","n","👑",["ee","oa"]],["t","ow","el","🧻",["ee","oa"]],
+ ["z","oo","","🦁",["ee","oa"]],["r","oo","f","🏠",["ee","oa"]],["t","oo","th","🦷",["ee","oa"]],["br","oo","m","🧹",["ee","oa"]],["p","oo","l","🏊",["ee","oa"]],
+ ["st","ar","","⭐",["or","er"]],["j","ar","","🫙",["or","er"]],["sh","ar","k","🦈",["or","er"]],["p","ar","k","🌳",["or","er"]],["st","or","m","⛈️",["ar","er"]],["th","or","n","🌹",["ar","er"]],
+ ["g","ir","l","👧",["ar","or"]],["st","ir","","🥄",["ar","or"]],["th","ir","d","3️⃣",["ar","or"]],["t","ur","n","↩️",["ar","or"]],["b","ur","n","🔥",["ar","or"]],
+ ["fl","igh","t","✈️",["ee","oa"]],["r","igh","t","👉",["ee","oa"]],["br","igh","t","💡",["ee","oa"]],
+ ["s","ing","","🎤",["ong","ang"]],["w","ing","","🪽",["ong","ang"]],["str","ong","","💪",["ing","ang"]],["l","ong","","📏",["ing","ang"]]
+];
+
+// Just-read levels. Sentences/paragraphs; a *word is a multi-syllable word that splits on tap.
+const READ_LEVELS = [
+  {id:"g1", name:"Grade 1", sub:"a short paragraph", kind:"para", items:[
+  "The black cat sat by the warm fire. She licked her soft paws and gave a big yawn. Then she curled up and fell fast asleep.",
+  "My little brother got a red *rainbow kite for his birthday. We ran up the hill and let it fly. It went so high it looked like a tiny dot in the sky.",
+  "Dad made a tall stack of warm *pancakes. We ate them with sweet berry jam and cold milk. It was the best breakfast all week.",
+  "The big brown dog dug a deep hole in the yard. He hid his old bone down inside it. Then he lay down on top to keep it safe.",
+  "A tiny gray *mouse crept out from under the shelf. It found a bit of cheese by the door. Quick as a flash, it ran back to its hole to eat.",
+  "We built a tall *snowman with a long red scarf. We gave him two black eyes and a carrot nose. By night he stood guard on the white lawn.",
+  "The wise old owl sat high in the oak tree. He blinked his big round eyes at the bright moon. Then he spread his wings and flew off to hunt.",
+  "My best friend has a shiny blue *bicycle. It has a bell that rings very loud. We take turns riding it up and down the street.",
+  "We picked ripe red *strawberries in the sun. Mom washed them in a big bowl of cool water. We ate every last one for lunch.",
+  "A *butterfly landed softly on my hand. It slowly opened its bright orange wings. When I lifted my arm, it floated up into the warm air.",
+  "The rain fell hard all day long. So we made a warm *campfire in the shed. We told funny jokes until the sky turned dark.",
+  "The farmer woke up when the sun came up. He fed the pigs, the hens, and the goats. Then he milked the cows in the big red barn.",
+  "A soft green *caterpillar munched on a leaf. It ate and ate until it was round and full. One day it will turn into a *butterfly.",
+  "We packed a *picnic to take to the park. We had ham, chips, and cold pink lemonade. We sat under a shady tree and ate it all.",
+  "The brave little tug boat was small but strong. It pushed and pulled the huge ship. Slowly it moved the ship into the safe *harbor.",
+  "The wind blew hard while I walked to school. My *umbrella turned inside out with a snap. I got wet, but I just laughed and ran.",
+  "A busy yellow *bumblebee buzzed in the garden. It went from flower to flower all morning. It gathered sweet nectar to take back to the hive.",
+  "We roasted *marshmallows over the hot fire. We watched the orange sparks fly up high. The night sky was full of bright little stars.",
+  "My mom hung the wet clothes on the line. The warm *sunshine dried them by noon. They smelled fresh and clean when we took them down.",
+  "A gray *squirrel ran up the tall tree trunk. It had a nut tucked in its round cheek. It hid the nut to save for the cold winter.",
+  "The *lighthouse stood on the rocky shore. Its bright light blinked all through the night. It kept the little boats safe from the sharp rocks.",
+  "We planted tiny seeds in the *garden. We gave them water every single morning. Soon green shoots pushed up through the dark soil.",
+  "The *dolphin leaped high out of the blue sea. It splashed back down with a great big wave. We clapped and cheered from the boat.",
+  "The class went to the *aquarium on Friday. We saw a shark, a long eel, and a flat ray. My favorite was the slow, spotted sea turtle."
+ ]},
+ {id:"g2", name:"Grade 2", sub:"a few sentences", kind:"para", items:[
+  "The little *rabbit hopped down the path. It saw a big green leaf. The rabbit ate the leaf for lunch.",
+  "Sam has a red *bicycle. He rides it to the park. His friend Jen rides a blue bike too.",
+  "The *sunflower is very tall. It turns to face the sun. Bees come to it all day long.",
+  "We went to the *seashore. I found a smooth white shell. The waves were cold on my feet.",
+  "A *ladybug landed on my hand. It had six black spots. Then it opened its wings and flew away.",
+  "The *campfire was warm and bright. We sat around it at night. Dad told us a funny story.",
+  "My *puppy likes to run. He chased the ball in the yard. Then he took a long nap on the rug.",
+  "The *pumpkin grew in the garden. It started small and green. By fall it was big and orange."
+ ]},
+ {id:"g3", name:"Grade 3", sub:"a short paragraph", kind:"para", items:[
+  "The *butterfly began life as a tiny egg. Soon a hungry *caterpillar hatched out. It ate leaves for many days until it was big. Then it made a hard shell and waited. At last it came out with bright, colorful wings.",
+  "*Volcanoes are mountains that can erupt. Deep under the ground, hot rock called *magma builds up. When the pressure is too strong, the magma bursts out as lava. The lava cools and makes new rock.",
+  "The *dolphin is a very smart animal. It lives in the ocean but breathes air like we do. Dolphins talk to each other with clicks and *whistles. They often swim together in a group called a pod.",
+  "Long ago, people had no *calendars. They watched the sun and moon to count the days. They noticed the seasons change in a *pattern. This helped them know when to plant and when to *harvest.",
+  "A *rainforest is warm and wet all year. Tall trees block most of the *sunlight below. Thousands of animals and insects live there. Many plants in the rainforest are found nowhere else on Earth.",
+  "The *spider is not an insect. It has eight legs and no wings. Many spiders spin silky webs to catch food. The web is sticky, so bugs get stuck when they fly into it."
+ ]}
+];
+
+// Short factual passages with a one-question check
+const PASSAGES = [
+  {t:"Science", s:"Water can be a solid, a liquid, or a gas. Ice is solid water. Steam is water that has turned into a gas.",
+   q:"What is ice?", a:["Solid water","A gas","A rock"], ok:0},
+  {t:"Nature", s:"A butterfly starts life as a tiny egg. It hatches into a caterpillar. Later it becomes a butterfly with big wings.",
+   q:"What hatches from the egg?", a:["A bird","A caterpillar","A frog"], ok:1},
+  {t:"Geography", s:"Earth has seven big pieces of land called continents. The biggest one is Asia. We also have five oceans.",
+   q:"How many continents are there?", a:["Five","Seven","Ten"], ok:1},
+  {t:"Math", s:"An even number can be split into two equal groups. Four is even because it makes two groups of two. Five is odd.",
+   q:"Which number is even?", a:["Four","Five","Three"], ok:0},
+  {t:"Space", s:"The Sun is a star. It is much bigger than Earth. Earth goes all the way around the Sun once every year.",
+   q:"What is the Sun?", a:["A planet","A moon","A star"], ok:2},
+  {t:"Animals", s:"A baby kangaroo is called a joey. It lives in a pocket on its mother's tummy. The pocket is called a pouch.",
+   q:"What is a baby kangaroo called?", a:["A cub","A joey","A calf"], ok:1},
+  {t:"Nature", s:"Trees breathe in a gas called carbon dioxide. They breathe out the oxygen that we need. That is one reason trees are so important.",
+   q:"What do trees breathe out?", a:["Oxygen","Water","Smoke"], ok:0},
+  {t:"Geography", s:"The Nile is one of the longest rivers in the world. It flows through Africa. It is more than four thousand miles long.",
+   q:"Where is the Nile River?", a:["In Africa","In Florida","In space"], ok:0},
+  {t:"Math", s:"A triangle has three sides. A square has four sides that are all the same. A circle has no sides at all.",
+   q:"How many sides does a triangle have?", a:["Two","Three","Four"], ok:1},
+  {t:"Ocean", s:"The ocean is salty. Whales live in the ocean but they are not fish. They breathe air, just like you do.",
+   q:"How do whales breathe?", a:["Through gills","They don't breathe","They breathe air"], ok:2},
+  {t:"Body", s:"Your heart is a muscle about the size of your fist. It pumps blood all around your body. It never stops, even when you sleep.",
+   q:"What does your heart pump?", a:["Water","Blood","Air"], ok:1},
+  {t:"Weather", s:"Clouds are made of tiny drops of water. When the drops get heavy, they fall as rain. In cold air they fall as snow.",
+   q:"What are clouds made of?", a:["Cotton","Tiny drops of water","Smoke"], ok:1},
+  {t:"Space", s:"The Moon has no air and no wind. That is why footprints left there by astronauts are still there today.",
+   q:"Why are the footprints still on the Moon?", a:["There is no wind","It is very hot","Someone painted them"], ok:0},
+  {t:"Florida", s:"Florida is a state with water on three sides. It is home to alligators and manatees. Manatees are gentle and eat plants.",
+   q:"What do manatees eat?", a:["Plants","Fish","Candy"], ok:0},
+  {t:"Math", s:"Ten is a very useful number. We have ten fingers. Counting by tens is fast: ten, twenty, thirty, forty.",
+   q:"What comes after thirty when counting by tens?", a:["Thirty-one","Forty","Twenty"], ok:1},
+  {t:"Insects", s:"Bees make honey from flower nectar. One bee makes only a tiny bit of honey in its whole life. It takes many bees to fill a jar.",
+   q:"What do bees use to make honey?", a:["Leaves","Flower nectar","Water"], ok:1}
+];
+
+/* =============== STATE / HELPERS =============== */
+let score = 0, milestone = 5, best = 0;
+try { best = Number(localStorage.getItem("wb-best") || 0); } catch(e){}
+const $ = id => document.getElementById(id);
+const shuffle = a => a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]);
+const pick = (a,n) => shuffle(a).slice(0,n);
+const cap = s => s[0].toUpperCase()+s.slice(1);
+
+function go(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on")); $(id).classList.add("on"); window.scrollTo(0,0); }
+
+
+function addStar(){
+  score++; $("score").textContent = score;
+  const b=$("scoreBox"); b.classList.remove("bump"); void b.offsetWidth; b.classList.add("bump");
+  if (score>best){ best=score; try{localStorage.setItem("wb-best",best)}catch(e){} }
+  if (score % milestone === 0) setTimeout(showReward, 500);
+}
+const REWARDS = [["🌸","Five stars!","Bella is so proud of you!"],["🎀","Ten stars!","You are hopping along!"],["🧁","Fifteen stars!","Super reader!"],["🌈","Twenty stars!","Wow. Just wow."],["💖","Look at you go!","Keep it up, cutie!"]];
+function showReward(){
+  const r = REWARDS[Math.min(score/milestone-1, REWARDS.length-1)];
+  $("rEm").textContent=r[0]; $("rTitle").textContent=r[1]; $("rMsg").textContent=r[2];
+  $("reward").classList.add("on"); confetti();
+}
+function closeReward(){ $("reward").classList.remove("on"); }
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.style.display="block"; setTimeout(()=>t.style.display="none",2200); }
+
+/* confetti */
+function confetti(){
+  const c=$("confetti"), ctx=c.getContext("2d"); c.width=innerWidth; c.height=innerHeight;
+  const cols=["#FFD93D","#FF5FA2","#7ED957","#8B5CF6","#2CD4D9","#FF8A3D"];
+  const ps=Array.from({length:120},()=>({x:Math.random()*c.width,y:-20-Math.random()*200,r:6+Math.random()*6,c:cols[Math.random()*6|0],vy:2+Math.random()*3,vx:(Math.random()-.5)*2,a:Math.random()*6}));
+  let t=0; (function f(){ ctx.clearRect(0,0,c.width,c.height); ps.forEach(p=>{p.y+=p.vy;p.x+=p.vx;p.a+=.1;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);ctx.fillStyle=p.c;ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*1.6);ctx.restore();}); if(++t<160) requestAnimationFrame(f); else ctx.clearRect(0,0,c.width,c.height); })();
+}
+
+/* =============== LETTER MATCH =============== */
+let lSel=null, lLeft=0;
+/* =============== SYLLABLES =============== */
+const SYLLABLES = [
+ ["cat","er","pil","lar"],["but","ter","fly"],["um","brel","la"],["el","e","phant"],["ba","na","na"],
+ ["di","no","saur"],["to","ma","to"],["choc","o","late"],["hip","po","pot","a","mus"],["al","li","ga","tor"],
+ ["wa","ter","mel","on"],["straw","ber","ry"],["blue","ber","ry"],["ba","sket","ball"],["bas","ket"],
+ ["com","pu","ter"],["tel","e","phone"],["tel","e","vi","sion"],["kan","ga","roo"],["oc","to","pus"],
+ ["but","ton"],["rab","bit"],["pen","cil"],["win","dow","pane"],["din","o","saur"],["cin","na","mon"],
+ ["fam","i","ly"],["birth","day"],["pump","kin"],["san","dal"],["gar","den"],["mon","key"],
+ ["rain","bow"],["snow","man"],["pen","guin"],["tur","tle"],["li","brar","y"],["hos","pi","tal"],
+ ["choc","late"],["ic","ing"],["mu","sic"],["ro","bot"],["ti","ger"],["li","on"],["ze","bra"],
+ ["po","ta","to"],["car","rot"],["let","tuce"],["cu","cum","ber"],["ap","ple"],["or","ange"],
+ ["ba","by"],["cook","ie"],["mag","net"],["pla","net"],["vol","ca","no"],["di","a","mond"]
+];
+let yParts=[], yNext=0, yRound=0, yTotal=6, yQueue=[];
+const YCOL=["","c2","c3","c4"];
+function startSyll(){ go("syll"); yRound=0; yQueue=shuffle(SYLLABLES).slice(0,yTotal); nextSyll(); }
+function nextSyll(){
+  if (yRound===yTotal){ $("yWord").textContent=""; $("yClap").textContent=""; $("yTray").innerHTML=`<button class="big" onclick="startSyll()">More words</button><button class="big ghost" onclick="go('home')">Home</button>`; $("yWhole").textContent=""; $("yHint").textContent="You clapped out "+yTotal+" big words! 👏"; return; }
+  yParts=yQueue[yRound]; yRound++; yNext=0;
+  $("yLeft").textContent=yRound+" of "+yTotal;
+  const whole=yParts.join("");
+  $("yWord").innerHTML = yParts.map((p,i)=>`<span class="gap" id="yslot${i}" style="min-width:auto;padding:0 6px">?</span>`).join('<span style="color:var(--line)">·</span>');
+  $("yClap").textContent = "👏 ".repeat(yParts.length).trim()+"  ("+yParts.length+" claps)";
+  $("yWhole").textContent=""; $("yHint").textContent="Tap the first beat.";
+  $("yTray").innerHTML = shuffle(yParts.map((p,i)=>({p,i}))).map(o=>`<button class="block ${YCOL[o.i%4]}" data-i="${o.i}">${o.p}</button>`).join("");
+  $("yTray").querySelectorAll(".block").forEach(b=>b.onclick=()=>tapSyll(b));
+}
+function tapSyll(b){
+  const i=+b.dataset.i;
+  if (i!==yNext){ b.classList.add("no"); setTimeout(()=>b.classList.remove("no"),400); $("yHint").textContent="Not yet — which beat comes next?"; return; }
+  b.classList.add("used");
+  const slot=$("yslot"+i); slot.textContent=yParts[i]; slot.classList.add("fill"); slot.style.color="var(--pinkdeep)";
+  yNext++;
+  if (yNext===yParts.length){ const whole=yParts.join(""); $("yWhole").textContent=whole; $("yHint").textContent=yParts.join(" · ")+" = "+whole; addStar(); setTimeout(nextSyll,2200); }
+  else $("yHint").textContent="Good! Next beat.";
+}
+
+
+/* =============== SIGHT WORDS =============== */
+let sWord="", sRound=0, sTotal=6, si=0;
+function openSight(){ go("sight"); si=0; sightMode("play"); }
+function sightMode(m){
+  for (const k of ["Learn","Grade","Play"]) { $("s"+k).style.display = m===k.toLowerCase()?"block":"none"; $("segS"+k).classList.toggle("on",m===k.toLowerCase()); }
+  $("sLeft").style.display = m==="play"?"":"none";
+  if (m==="learn") renderSightIntro();
+  if (m==="grade") renderGrade();
+  if (m==="play") startSight();
+}
+function renderSightIntro(){
+  const c=SIGHT_INTRO[si];
+  $("sDots").innerHTML = SIGHT_INTRO.map((_,i)=>`<i class="${i===si?'on':''}"></i>`).join("");
+  $("sCard").innerHTML = `<div class="fam" id="sIntroCard"><div class="em">${c.em}</div><div class="teamsline" style="font-size:30px">${c.h}</div><p class="intro">${c.t}</p><div class="pop">${c.pop.map(w=>`<span>${w}</span>`).join("")}</div></div>
+    <div class="nav"><button class="big ghost" onclick="if(si>0){si--;renderSightIntro()}" ${si===0?'disabled style="opacity:.4"':''}>← Back</button><button class="big" onclick="${si<SIGHT_INTRO.length-1?'si++;renderSightIntro()':"sightMode('grade')"}">${si<SIGHT_INTRO.length-1?'Next →':'See the words →'}</button></div>`;
+  swipe($("sIntroCard"), ()=>{ if(si<SIGHT_INTRO.length-1){si++;renderSightIntro();} else sightMode("grade"); }, ()=>{ if(si>0){si--;renderSightIntro();} });
+}
+function gradeButtons(id,onpick){
+  $(id).innerHTML = GRADES.map((G,i)=>`<button class="gbtn ${i===sg?'on':''}" onclick="sg=${i};${onpick}"><b>${G.g}</b><small>${G.name.split(" ")[0]}</small></button>`).join("");
+}
+function renderGrade(){
+  gradeButtons("sGradeBtns","renderGrade()");
+  const G=GRADES[sg];
+  $("sGradeList").innerHTML = `<div class="fam" style="text-align:left"><div class="name" style="margin-bottom:10px">${G.name} — ${G.words.length} words</div><div class="wgrid" style="grid-template-columns:repeat(3,1fr)">${G.words.map(w=>`<div class="ex" style="font-size:20px;text-align:center">${w}</div>`).join("")}</div></div>
+    <button class="big" style="margin-top:12px" onclick="sightMode('play')">Practice ${G.name.toLowerCase()} words</button>`;
+}
+function startSight(){ $("sPlay").style.display="block"; sRound=0; nextSight(); }
+function nextSight(){
+  $("sGradePick").innerHTML = `<span class="pill">${GRADES[sg].name}</span><button class="pill" style="cursor:pointer" onclick="sightMode('grade')">Change grade</button>`;
+  if (sRound===sTotal){ $("sChoices").className="choices"; $("sChoices").innerHTML=`<button class="big" onclick="startSight()">Again</button><button class="big ghost" onclick="go('home')">Home</button>`; $("sHint").textContent="All done!"; $("sPrompt").textContent="🍿"; return; }
+  sRound++; $("sLeft").textContent=sRound+" of "+sTotal;
+  const G=GRADES[sg], wl=G.words.map(w=>w.toLowerCase());
+  const sent=pick(G.sents,1)[0], inSent=[...new Set(sent.toLowerCase().replace(/[.?!,]/g,"").split(" ").filter(w=>wl.includes(w)))];
+  sWord = pick(inSent,1)[0];
+  $("sPrompt").textContent=sWord;
+  $("sHint").textContent="This is a word you'll see a lot. Read it in the sentence.";
+  const html = sent.split(" ").map(w=>{ const bare=w.toLowerCase().replace(/[.?!,]/g,""); return bare===sWord ? `<span class="w say">${w}</span>` : `<span>${w}</span>`; }).join(" ");
+  $("sChoices").className="choices";
+  $("sChoices").innerHTML = `<div class="para" style="font-size:26px">${html}</div><button class="big" style="margin-top:14px" onclick="sightGot()">${sRound<sTotal?'Next word →':'Finish ⭐'}</button>`;
+}
+function sightGot(){ addStar(); nextSight(); }
+
+/* =============== SOUND TEAMS =============== */
+function openTeams(){ go("teams"); fi=0; teamsMode("learn"); }
+let fi=0;
+function teamsMode(m){
+  for (const k of ["Learn","Gloss","Play"]) { $("t"+k).style.display = m===k.toLowerCase()?"block":"none"; $("seg"+k).classList.toggle("on",m===k.toLowerCase()); }
+  $("tLeft").style.display = m==="play"?"":"none";
+  if (m==="learn") renderFamily();
+  if (m==="gloss") renderGloss();
+}
+function hl(w,team,col){ const i=w.indexOf(team); return i<0?w:w.slice(0,i)+`<mark style="color:${col}">${team}</mark>`+w.slice(i+team.length); }
+function famWords(f){ return Object.entries(f.teams).flatMap(([t,ws])=>ws); }
+function renderFamily(){
+  const f=FAMILIES[fi], keys=Object.keys(f.teams);
+  $("tDots").innerHTML = FAMILIES.map((_,i)=>`<i class="${i===fi?'on':''}"></i>`).join("");
+  const line = keys.map((t,i)=>`<span style="background:${FAMCOLS[i%5]}">${t.trim()}</span>`).join("<em>/</em>");
+  const grid = keys.map((t,i)=>{ const team=t.trim(), col=FAMCOLS[i%5];
+    return `<div class="lbl" style="color:${col}">${team} words</div>` + f.teams[t].map(w=>`<div class="ex">${hl(w,team,col)}</div>`).join(""); }).join("");
+  $("tCard").innerHTML = `<div class="fam" id="famCard"><div class="em">${f.em}</div><div class="teamsline">${line}</div><div class="name">${f.name}</div><div class="wgrid">${grid}</div></div>
+    <div class="nav"><button class="big ghost" onclick="famPrev()" ${fi===0?'disabled style="opacity:.4"':''}>← Back</button><button class="big" onclick="famPractice(0)">Use them →</button></div>`;
+  swipe($("famCard"), famNext, famPrev);
+}
+function famPrev(){ if(fi>0){fi--; renderFamily();} }
+function famNext(){ if(fi<FAMILIES.length-1){fi++; renderFamily();} else teamsMode("gloss"); }
+function famPractice(k){
+  const f=FAMILIES[fi];
+  if (k>=f.sents.length){ famNext(); return; }
+  const [sent,ans]=f.sents[k]; const low=ans.toLowerCase();
+  const others=pick(famWords(f).filter(w=>w!==low),2);
+  $("tCard").innerHTML = `<div class="fam" id="famCard"><div class="name">Finish the sentence</div><div class="sent">${sent.replace("___",'<span class="gap" id="sGap"></span>')}</div>
+    <div class="teams" id="famChoices">${shuffle([ans,...others]).map(w=>`<button class="teamb" style="font-size:24px;color:var(--ink)">${w.toLowerCase()}</button>`).join("")}</div><p class="hint" id="famHint">${k+1} of ${f.sents.length}</p></div>
+    <div class="nav"><button class="big ghost" onclick="renderFamily()">← Words</button></div>`;
+  $("famChoices").querySelectorAll(".teamb").forEach(b=>b.onclick=()=>{
+    const g=$("sGap"); g.textContent=b.textContent; g.classList.add("fill");
+    if (b.textContent===low){ b.classList.add("yes"); g.textContent=ans; addStar(); $("famHint").textContent="Yes! "+sent.replace("___",ans); $("famChoices").querySelectorAll(".teamb").forEach(x=>x.disabled=true); setTimeout(()=>famPractice(k+1),1500); }
+    else { b.classList.add("no"); $("famHint").textContent="Read it again. Which word makes sense?"; setTimeout(()=>{b.classList.remove("no"); g.textContent=""; g.classList.remove("fill");},800); }
+  });
+}
+function renderGloss(){
+  $("tGlossGrid").innerHTML = FAMILIES.flatMap((f,i)=>Object.entries(f.teams).map(([t,ws])=>`<button class="gbtn" onclick="fi=${i};teamsMode('learn')"><b>${t.trim()}</b><small>${ws[0]}</small></button>`)).join("");
+}
+function swipe(el,onLeft,onRight){ let x0=null; el.addEventListener("touchstart",e=>x0=e.touches[0].clientX,{passive:true}); el.addEventListener("touchend",e=>{ if(x0===null)return; const dx=e.changedTouches[0].clientX-x0; x0=null; if(dx<-60)onLeft(); else if(dx>60)onRight(); }); }
+let tQueue=[], tRound=0, tTotal=8, tItem=null;
+function startTeams(){ go("teams"); teamsMode("play"); $("tLeft").style.display=""; tRound=0; tQueue=shuffle(TEAMS).slice(0,tTotal); nextTeam(); }
+function nextTeam(){
+  if (tRound===tTotal){ $("tEm").textContent="🏅"; $("tWord").textContent="All done!"; $("tChoices").innerHTML=`<button class="big" style="grid-column:1/-1" onclick="startTeams()">Play again</button><button class="big ghost" style="grid-column:1/-1" onclick="go('home')">Home</button>`; $("tHint").textContent=""; return; }
+  tItem=tQueue[tRound]; tRound++; $("tLeft").textContent=tRound+" of "+tTotal; $("tHint").textContent="";
+  const [pre,team,post,em,wrong]=tItem;
+  $("tEm").textContent=em;
+  $("tWord").innerHTML=`<span>${pre}</span><span class="gap" id="tGap"></span><span>${post}</span>`;
+  $("tChoices").innerHTML = shuffle([team,...wrong]).map(t=>`<button class="teamb">${t}</button>`).join("");
+  $("tChoices").querySelectorAll(".teamb").forEach(b=>b.onclick=()=>{
+    const g=$("tGap"); g.textContent=b.textContent; g.classList.add("fill");
+    if (b.textContent===team){ b.classList.add("yes"); $("tHint").textContent=pre+team+post+" — "+team+" makes one sound!"; addStar(); $("tChoices").querySelectorAll(".teamb").forEach(x=>x.disabled=true); setTimeout(nextTeam,1400); }
+    else { b.classList.add("no"); $("tHint").textContent="Hmm, "+pre+b.textContent+post+" isn't a word. Try another team."; setTimeout(()=>{b.classList.remove("no"); g.textContent=""; g.classList.remove("fill");},900); }
+  });
+}
+
+/* =============== WORD BLOCKS
+ =============== */
+let bParts=[], bNext=0, bRound=0, bTotal=6, bQueue=[];
+const COLORS=["","c2","c3","c4"];
+function startBlocks(){ go("blocks"); bRound=0; bQueue=shuffle(CHUNKS).slice(0,bTotal); nextBlock(); }
+function nextBlock(){
+  if (bRound===bTotal){ $("bStage").innerHTML=""; $("bTray").innerHTML=`<button class="big" onclick="startBlocks()">More words</button><button class="big ghost" onclick="go('home')">Home</button>`; $("bWhole").textContent=""; $("bHint").textContent="You built "+bTotal+" big words!"; $("bPrompt").textContent=""; return; }
+  bParts = bQueue[bRound]; bRound++; bNext=0;
+  $("bLeft").textContent=bRound+" of "+bTotal; $("bWhole").textContent=""; $("bHint").textContent="Which little word comes first?";
+  const whole = bParts.join("");
+  $("bPrompt").textContent=whole;
+  $("bStage").innerHTML = bParts.map(p=>`<span class="block slot">${p}</span>`).join("");
+  $("bTray").innerHTML = shuffle(bParts.map((p,i)=>({p,i}))).map(o=>`<button class="block ${COLORS[o.i%4]}" data-i="${o.i}">${o.p}</button>`).join("");
+  $("bTray").querySelectorAll(".block").forEach(b=>b.onclick=()=>tapChunk(b));
+}
+function tapChunk(b){
+  const i=+b.dataset.i, p=bParts[i];
+  if (i!==bNext){ b.classList.add("no"); setTimeout(()=>b.classList.remove("no"),400); $("bHint").textContent="Not yet. What sound comes first in "+bParts.join("")+"?"; return; }
+  b.classList.add("used");
+  const slot=$("bStage").children[i]; slot.className="block snap "+COLORS[i%4]; slot.textContent=p;
+  bNext++;
+  if (bNext===bParts.length){
+    const whole=bParts.join(""); $("bWhole").textContent=whole; $("bHint").textContent=bParts.join(" + ")+" = "+whole;
+    addStar(); setTimeout(nextBlock,2600);
+  } else $("bHint").textContent="Good! Now the next one.";
+}
+
+/* =============== READ & LEARN =============== */
+// Break a word into readable pieces: known block-words first, then vowel-group syllables
+const HARD_SPLIT={bicycle:"bi·cy·cle",tomato:"to·ma·to",potato:"po·ta·to"};
+function splitWord(w){
+  const core=w.replace(/[^a-zA-Z']/g,"");
+  if(HARD_SPLIT[core.toLowerCase()]) return HARD_SPLIT[core.toLowerCase()]+w.slice(core.length), tail=w.slice(core.length), lower=core.toLowerCase();
+  for (const [a,b] of CHUNKS) if (lower===a+b) return core.slice(0,a.length)+"·"+core.slice(a.length)+tail;
+  if (lower.length<=4) return w;
+  const parts=lower.match(/[^aeiouy]*[aeiouy]+(?:[^aeiouy]+(?=[^aeiouy][aeiouy])|[^aeiouy]*(?![aeiouy]))?/g);
+  if (!parts||parts.length<2) return w;
+  let i=0; return parts.map(p=>{const x=core.slice(i,i+p.length); i+=p.length; return x;}).join("·")+tail;
+}
+let ji=0, jQueue=[], jLevel=0;
+function openRead(){ go("read"); readMode("just"); }
+function readMode(m){
+  $("rJust").style.display = m==="just"?"block":"none"; $("rFacts").style.display = m==="facts"?"block":"none";
+  $("segRJust").classList.toggle("on",m==="just"); $("segRFacts").classList.toggle("on",m==="facts");
+  if (m==="just"){ renderLevels(); if(!jQueue.length) buildJust(); renderJust(); }
+  if (m==="facts"){ $("rLeft").style.display=""; startRead(); }
+}
+function renderLevels(){
+  $("jLevels").innerHTML = READ_LEVELS.map((L,i)=>`<button class="${i===jLevel?'on':''}" onclick="setLevel(${i})">${L.name}</button>`).join("");
+}
+function setLevel(i){ if(i===jLevel)return; jLevel=i; jQueue=[]; buildJust(); renderLevels(); renderJust(); }
+function buildJust(){
+  const L=READ_LEVELS[jLevel];
+  if (L.kind==="sentence"){ const plain=shuffle(L.items.filter(x=>!x.includes("*"))), multi=shuffle(L.items.filter(x=>x.includes("*"))); jQueue=[]; while(plain.length||multi.length){ if(plain.length)jQueue.push(plain.pop()); if(plain.length)jQueue.push(plain.pop()); if(multi.length)jQueue.push(multi.pop()); } jQueue=jQueue.slice(0,10); }
+  else jQueue=shuffle(L.items).slice(0,6);
+  ji=0;
+}
+function bigWord(w){ const core=w.slice(1).replace(/[^a-zA-Z]/g,""), tail=w.slice(1+core.length); return `<span class="big-w" onclick="this.textContent=this.textContent.includes('·')?'${core}':splitWord('${core}')">${core}</span>${tail}`; }
+function renderJust(){
+  $("rLeft").style.display="none";
+  $("jDots").innerHTML = jQueue.map((_,i)=>`<i class="${i===ji?'on':''}"></i>`).join("");
+  const L=READ_LEVELS[jLevel], txt=jQueue[ji], hasBig=txt.includes("*");
+  const html = txt.split(" ").map(w=>w.startsWith("*")?bigWord(w):w).join(" ");
+  const cls = L.kind==="sentence" ? "jread" : "jread jpara";
+  $("jCard").innerHTML = `<div class="fam" id="jCardEl"><div class="${cls}">${html}</div>${hasBig?'<div class="name" style="margin:12px 0 0">Big word! Tap it to break it into pieces.</div>':''}</div>
+    <div class="nav"><button class="big ghost" onclick="if(ji>0){ji--;renderJust()}" ${ji===0?'disabled style="opacity:.4"':''}>← Back</button><button class="big" onclick="justNext()">${ji<jQueue.length-1?'Next →':'Done ⭐'}</button></div>`;
+  swipe($("jCardEl"), justNext, ()=>{ if(ji>0){ji--;renderJust();} });
+}
+function justNext(){ if(ji<jQueue.length-1){ ji++; renderJust(); } else { addStar(); const n=jQueue.length; jQueue=[]; $("jCard").innerHTML=`<div class="fam"><div class="em">📚</div><div class="teamsline" style="font-size:28px">Great reading!</div><div class="name">You read ${n} at ${READ_LEVELS[jLevel].name} level.</div></div><div class="nav"><button class="big ghost" onclick="buildJust();renderJust()">Read more</button><button class="big" onclick="readMode('facts')">Try the facts →</button></div>`; $("jDots").innerHTML=""; } }
+let rQueue=[], rRound=0, rTotal=6;
+function startRead(){ go("read"); rRound=0; PASSAGES.forEach(p=>p._requeued=false); rQueue=shuffle(PASSAGES).slice(0,rTotal); nextRead(); }
+function nextRead(){
+  if (rRound===rTotal){ $("rPara").innerHTML="<span class='topic'>All done</span>You read "+rTotal+" true things today!"; $("rQuiz").innerHTML=`<button class="big" onclick="startRead()">Read more</button><br><br><button class="big ghost" onclick="go('home')">Home</button>`; $("rHint").textContent=""; return; }
+  const P=rQueue[rRound]; rRound++; $("rLeft").textContent=rRound+" of "+rTotal; $("rHint").textContent="";
+  $("rPara").innerHTML = `<span class="topic">${P.t}</span>` + P.s.split(" ").map(w=>`<span class="w" tabindex="0">${w}</span>`).join(" ");
+  $("rPara").querySelectorAll(".w").forEach(el=>{ const orig=el.textContent; const h=()=>{ if(el.classList.contains("split")){el.textContent=orig;el.classList.remove("split");return;} el.textContent=splitWord(orig); el.classList.add("split"); }; el.onclick=h; el.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();h();}}; });
+  $("rQuiz").innerHTML = `<p>${P.q}</p><div class="choices">${shuffle(P.a.map((t,i)=>({t,i}))).map(o=>`<button class="choice" style="font-size:22px" data-i="${o.i}">${o.t}</button>`).join("")}</div>`;
+  $("rQuiz").querySelectorAll(".choice").forEach(b=>b.onclick=()=>{
+    if (+b.dataset.i===P.ok){ b.classList.add("yes"); addStar(); $("rHint").textContent="You got it!"; $("rQuiz").querySelectorAll(".choice").forEach(x=>x.disabled=true); setTimeout(nextRead,1400); }
+    else { b.classList.add("no"); $("rHint").textContent="Not quite — read it again and try once more."; b.disabled=true; if(!P._requeued){ P._requeued=true; const at=Math.min(rRound+1,rQueue.length); rQueue.splice(at,0,P); rTotal++; $("rLeft").textContent=rRound+" of "+rTotal; } }
+  });
+}
+
+/* =============== PWA / INSTALL =============== */
+let deferredPrompt=null;
+window.addEventListener("beforeinstallprompt", e=>{ e.preventDefault(); deferredPrompt=e; renderInstall(); });
+window.addEventListener("appinstalled", ()=>{ $("installCard").style.display="none"; toast("Installed! Find Phonics with Bella on your home screen. 🐰"); });
+function renderInstall(){
+  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  if (standalone){ $("installCard").style.display="none"; return; }
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  if (deferredPrompt){ $("installText").innerHTML=`<p style="margin:6px 0 10px">Add Phonics with Bella as an app so it opens full-screen, even offline.</p><button class="big" id="installBtn">Install app</button>`; $("installBtn").onclick=async()=>{ deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt=null; }; }
+  else if (ios) $("installText").innerHTML=`<ol><li>Open this page in <b>Safari</b></li><li>Tap the <b>Share</b> button (the square with the arrow)</li><li>Tap <b>Add to Home Screen</b>, then <b>Add</b></li></ol>`;
+  else $("installText").innerHTML=`<ol><li>Open this page in <b>Chrome</b></li><li>Tap the <b>⋮</b> menu</li><li>Tap <b>Add to Home screen</b> or <b>Install app</b></li></ol>`;
+}
+renderInstall();
+if ("serviceWorker" in navigator) addEventListener("load", ()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+if (best>0) toast("Bella remembers your best: "+best+" ⭐");
+</script>
+</body>
+</html>
