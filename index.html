@@ -94,6 +94,9 @@ h2{font-size:26px}
 .big:active{transform:translateY(4px);box-shadow:0 2px 0 #D14E80}
 .big.ghost{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
 .hint{color:var(--ink-soft);font-size:15px;text-align:center;margin:10px 0 0;min-height:22px}
+.keyhint{display:none;color:var(--ink-soft);font-size:13px;text-align:center;margin:10px 0 0}
+.keyhint b{color:var(--pinkdeep);font-size:15px}
+@media (hover:hover) and (pointer:fine){ .keyhint{display:block} }
 .row{display:flex;align-items:center;gap:12px;justify-content:center;flex-wrap:wrap}
 
 /* ---- letters ---- */
@@ -1362,7 +1365,28 @@ function famPractice(k){
 function renderGloss(){
   $("tGlossGrid").innerHTML = FAMILIES.flatMap((f,i)=>Object.entries(f.teams).map(([t,ws])=>`<button class="gbtn" onclick="fi=${i};teamsMode('learn')"><b>${t.trim()}</b><small>${ws[0]}</small></button>`)).join("");
 }
-function swipe(el,onLeft,onRight){ let x0=null; el.addEventListener("touchstart",e=>x0=e.touches[0].clientX,{passive:true}); el.addEventListener("touchend",e=>{ if(x0===null)return; const dx=e.changedTouches[0].clientX-x0; x0=null; if(dx<-60)onLeft(); else if(dx>60)onRight(); }); }
+let cardNav=null; // the deck card currently on screen, for keyboard navigation
+function swipe(el,onLeft,onRight){
+  cardNav={el, next:onLeft, prev:onRight};
+  // desktop has no swipe, so show the keyboard equivalent next to the buttons
+  const host=el.parentElement;
+  if (host && !host.querySelector(".keyhint")) host.insertAdjacentHTML("beforeend",'<p class="keyhint">Use <b>\u2190</b> and <b>\u2192</b> to move between cards</p>');
+  let x0=null;
+  el.addEventListener("touchstart",e=>x0=e.touches[0].clientX,{passive:true});
+  el.addEventListener("touchend",e=>{ if(x0===null)return; const dx=e.changedTouches[0].clientX-x0; x0=null; if(dx<-60)onLeft(); else if(dx>60)onRight(); });
+}
+addEventListener("keydown", e=>{
+  if (e.key!=="ArrowLeft" && e.key!=="ArrowRight") return;
+  if (e.metaKey||e.ctrlKey||e.altKey) return;
+  const t=e.target;
+  if (t && (t.tagName==="INPUT"||t.tagName==="TEXTAREA"||t.isContentEditable)) return;
+  if ($("reward").classList.contains("on")) return;          // reward popup is open
+  // only act when the card that registered is still rendered and actually visible:
+  // a replaced card is disconnected, a card on a hidden screen or tab has no offsetParent
+  if (!cardNav || !cardNav.el.isConnected || !cardNav.el.offsetParent) return;
+  e.preventDefault();
+  (e.key==="ArrowRight" ? cardNav.next : cardNav.prev)();
+});
 let tQueue=[], tRound=0, tTotal=8, tItem=null;
 function startTeams(){ go("teams"); teamsMode("play"); $("tLeft").style.display=""; tRound=0; tTotal=plan().round;
   tQueue=shuffle(pool(TEAMS,t=>(t[0]+t[1]+t[2]).length<=plan().teamLen,tTotal)).slice(0,tTotal); nextTeam(); }
